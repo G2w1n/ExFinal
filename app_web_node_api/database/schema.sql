@@ -15,8 +15,8 @@ CREATE TABLE usuarios (
   nombre         TEXT NOT NULL CHECK (char_length(nombre) BETWEEN 2 AND 80),
   correo         TEXT NOT NULL UNIQUE CHECK (correo = lower(correo)),
   password_hash  TEXT NOT NULL,
-  dni            TEXT CHECK (dni ~ '^\d{8}$'),
-  celular        TEXT CHECK (celular ~ '^9\d{8}$'),
+  dni            TEXT CHECK (char_length(dni) = 8 AND dni ~ '^[0-9]+'),
+  celular        TEXT CHECK (char_length(celular) = 9 AND celular ~ '^9[0-9]+'),
   activo         BOOLEAN NOT NULL DEFAULT TRUE,
   creado         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -66,7 +66,7 @@ CREATE TABLE reservas_estacionamiento (
   id_usuario          INTEGER NOT NULL REFERENCES usuarios (id),
   id_pasaje           INTEGER UNIQUE REFERENCES compras_pasajes (id),  -- enlace con TransAndino
   tipo                TEXT NOT NULL DEFAULT 'auto' CHECK (tipo IN ('auto', 'bus')),
-  placa               TEXT NOT NULL CHECK (placa ~ '^[A-Z0-9]{3}-[A-Z0-9]{3}$'),
+  placa               TEXT NOT NULL CHECK (char_length(placa) = 7 AND placa ~ '^[A-Z0-9]{3}-[A-Z0-9]{3}'),
   nombre_pasajero     TEXT NOT NULL,
   fecha_hora_entrada  TIMESTAMP NOT NULL,         -- hora de Perú
   horas               NUMERIC(5, 1) NOT NULL CHECK (horas > 0 AND horas <= 240),

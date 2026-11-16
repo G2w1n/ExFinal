@@ -1,0 +1,19 @@
+# Render Blueprint: crea la API (Node + Express) desde la carpeta app_web_node_api
+services:
+  - type: web
+    name: grupo15-api
+    runtime: node
+    plan: free
+    rootDir: app_web_node_api
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/salud
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # se pega a mano: la cadena de Neon
+      - key: DB_SSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true  # Render crea una clave secreta al azar
+      - key: CORS_ORIGIN
+        sync: false          # el link de Vercel, por ejemplo https://exfinal.vercel.app

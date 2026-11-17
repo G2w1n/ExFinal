@@ -12,8 +12,12 @@ import { pool } from './config/db.js';
 
 export const app = express();
 
-const origenes = String(process.env.CORS_ORIGIN ?? 'http://localhost:5173').split(',').map((o) => o.trim()).filter(Boolean);
-app.use(cors({ origin: origenes }));
+// CORS_ORIGIN: links del frontend separados por coma. Acepta * en el nombre del sitio,
+// por ejemplo https://exfinal*.vercel.app (producción y vistas previas de Vercel)
+const origenes = String(process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+  .split(',').map((o) => o.trim().replace(/\/+$/, '')).filter(Boolean)
+  .map((o) => new RegExp(`^${o.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[a-z0-9-]*')}$`, 'i'));
+app.use(cors({ origin: (origen, listo) => listo(null, !origen || origenes.some((r) => r.test(origen))) }));
 app.use(express.json({ limit: '100kb' }));
 app.disable('x-powered-by');
 

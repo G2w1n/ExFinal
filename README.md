@@ -131,7 +131,7 @@ Pruebas de las reglas de precio: `cd app_web_node_api && npm test`.
    - `DATABASE_URL` = la cadena de Neon
    - `DB_SSL` = `true`
    - `JWT_SECRET` = una frase larga (el blueprint la genera sola)
-   - `CORS_ORIGIN` = el link de Vercel del paso 4 (sin `/` al final)
+   - `CORS_ORIGIN` = el link de Vercel del paso 4. Con `*` acepta también las vistas previas de Vercel, por ejemplo `https://exfinal*.vercel.app` (varios links se separan con coma)
 3. Al terminar, abre `https://TU-API.onrender.com/api/salud`.
 
 > En el plan gratis, Render **se duerme** después de 15 minutos sin uso, y la primera petición tarda cerca de 50 s. Antes de la exposición, abre la página unos minutos antes.
@@ -139,7 +139,7 @@ Pruebas de las reglas de precio: `cd app_web_node_api && npm test`.
 ## Paso 4 · Publicar el React en Vercel
 
 1. En [vercel.com](https://vercel.com): *Add New → Project*, este repositorio, **Root Directory** `app_web_react` (Vite se detecta solo).
-2. Variable de entorno: `VITE_API_URL` = `https://TU-API.onrender.com/api`
+2. Variable de entorno: `VITE_API_URL` = `https://TU-API.onrender.com/api`. Vite la guarda **al construir**: si la cambias, usa *Redeploy*. Si falta, la página publicada usa la API de Render del grupo (`exfinal-hd5z.onrender.com`).
 3. *Deploy*. Después vuelve a Render y pon ese link en `CORS_ORIGIN`.
 
 `vercel.json` hace que las rutas de React (por ejemplo `/app/mis-viajes`) funcionen al recargar.

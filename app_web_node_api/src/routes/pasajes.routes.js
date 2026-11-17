@@ -17,6 +17,7 @@ r.get('/mios', h(c.mios));
 r.get('/', personal, h(c.listar));
 r.get('/:id', h(c.detalle));
 r.get('/:id/historial', h(c.historial));
+r.get('/:id/comprobante', h(c.comprobante));
 r.put('/:id', h(c.editar));
 r.post('/:id/pagar', h(c.pagar));
 r.post('/:id/cancelar', h(c.cancelar));

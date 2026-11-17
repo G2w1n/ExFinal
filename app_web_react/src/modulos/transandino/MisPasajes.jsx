@@ -68,6 +68,7 @@ export function MisPasajes() {
                   <Link className="btn btn-aero" to={`/app/aeropuerto/reservar?pasaje=${p.id}`}>Reservar estacionamiento</Link>
                 )}
                 {p.estado === 'registrado' && <button type="button" className="btn btn-peligro" onClick={() => cancelar(p)}>Cancelar</button>}
+                {['pagado', 'abordado'].includes(p.estado) && <Link className="btn btn-borde" to={`/app/comprobante/pasaje/${p.id}`}>Comprobante</Link>}
                 <button type="button" className="btn btn-borde" aria-expanded={abierto === p.id} onClick={() => verHistorial(p)}>Seguimiento</button>
               </div>
               {abierto === p.id && <Historial pasos={historial} />}

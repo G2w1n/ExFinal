@@ -22,6 +22,9 @@ import { LlegadasEsperadas } from './integraciones/LlegadasEsperadas.jsx';
 import { Clientes } from './crm/Clientes.jsx';
 import { FichaCliente } from './crm/FichaCliente.jsx';
 import { Indicadores } from './crm/Indicadores.jsx';
+import { Comprobante } from './pages/Comprobante.jsx';
+import { Vuelos } from './pages/Vuelos.jsx';
+import { Estacionamiento } from './pages/Estacionamiento.jsx';
 
 const TODOS = ['cliente', 'administrador', 'empleado'];
 const PERSONAL = ['administrador', 'empleado'];
@@ -33,6 +36,8 @@ export default function App() {
       <Route path="/" element={<Inicio />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
+      <Route path="/vuelos" element={<Vuelos />} />
+      <Route path="/estacionamiento" element={<Estacionamiento />} />
       <Route path="/app" element={<RutaProtegida><Layout /></RutaProtegida>}>
         <Route index element={<Bienvenida />} />
         <Route path="transandino/comprar" element={ruta('transandino', TODOS, <ComprarPasaje />)} />
@@ -46,6 +51,7 @@ export default function App() {
         <Route path="aeropuerto/llegadas" element={ruta('aeropuerto', PERSONAL, <LlegadasEsperadas />)} />
         <Route path="aeropuerto/espacio-bus" element={ruta('transandino', ['administrador'], <EspacioBuses />)} />
         <Route path="mis-viajes" element={<MisViajes />} />
+        <Route path="comprobante/:tipo/:id" element={<Comprobante />} />
         <Route path="crm" element={<RutaProtegida personal><Clientes /></RutaProtegida>} />
         <Route path="crm/indicadores" element={<RutaProtegida personal><Indicadores /></RutaProtegida>} />
         <Route path="crm/clientes/:id" element={<RutaProtegida personal><FichaCliente /></RutaProtegida>} />

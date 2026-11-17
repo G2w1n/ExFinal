@@ -7,6 +7,7 @@ import pasajesRoutes from './routes/pasajes.routes.js';
 import reservasRoutes from './routes/reservas.routes.js';
 import integracionesRoutes from './routes/integraciones.routes.js';
 import crmRoutes from './routes/crm.routes.js';
+import cajaRoutes from './routes/caja.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { pool } from './config/db.js';
 
@@ -31,6 +32,7 @@ app.use('/api/pasajes', pasajesRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/integraciones', integracionesRoutes);
 app.use('/api/crm', crmRoutes);
+app.use('/api/caja', cajaRoutes);
 
 app.use('/api', (_req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 app.use(errorHandler);

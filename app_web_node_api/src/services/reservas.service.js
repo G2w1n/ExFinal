@@ -19,6 +19,10 @@ const esPersonalAero = (u) => tieneRol(u, 'aeropuerto', 'administrador', 'emplea
 const ahoraEnLima = () => new Date().toLocaleString('sv-SE', { timeZone: 'America/Lima' }).slice(0, 16);
 const vip = (v) => v === true || v === 'true' || v === 'on';
 
+// Capacidad del estacionamiento (la misma del Parcial)
+export const CAPACIDAD = { normal: 60, vip: 20, bus: 8 };
+export const ocupacion = async () => ({ capacidad: CAPACIDAD, reservas: await repo.ocupacion() });
+
 export const cotizar = (body) => cotizarEstacionamiento({ ...body, zona_vip: vip(body.zona_vip) });
 
 function armarDatos(body, tipo) {
@@ -73,6 +77,14 @@ async function obtenerPermitido(usuario, id) {
 }
 
 export const detalle = (usuario, id) => obtenerPermitido(usuario, id);
+
+// Comprobante: solo de una reserva pagada; su QR es el pase de salida de la garita
+export async function comprobante(usuario, id) {
+  const reserva = await obtenerPermitido(usuario, id);
+  const pago = await pagos.deEntidad('reserva', id);
+  if (!pago) throw new AppError(409, 'Esta reserva todavía no está pagada.');
+  return { reserva, pago };
+}
 export const mias = (usuario) => repo.deUsuario(usuario.id);
 export const listar = (q) => repo.listar({ buscar: String(q.buscar ?? ''), estado: String(q.estado ?? ''), tipo: String(q.tipo ?? ''), fecha: String(q.fecha ?? '') });
 

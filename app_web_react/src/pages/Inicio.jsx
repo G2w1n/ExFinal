@@ -5,6 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { pasajesApi } from '../api/servicios.api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { hoyEnLima, soles } from '../utils/formato.js';
+import { CabeceraPublica, PiePublico } from '../components/Publico.jsx';
+import { Tablero } from '../vuelos/Tablero.jsx';
 
 const PASOS = [
   ['1', 'Compra tu pasaje', 'Elige la ruta a Cusco, tu asiento y tu equipaje con TransAndino.'],
@@ -34,17 +36,7 @@ export function Inicio() {
 
   return (
     <div className="publico">
-      <header className="barra barra-publica">
-        <Link to="/" className="marca">Viaje a Cusco <small>Grupo 15</small></Link>
-        <nav aria-label="Principal">
-          <a href="#como-funciona">Cómo funciona</a>
-          <a href="#rutas">Rutas</a>
-          <a href="#estacionamiento">Estacionamiento</a>
-          {usuario
-            ? <Link className="btn btn-claro" to="/app">Ir a mi cuenta</Link>
-            : <Link className="btn btn-claro" to="/login">Iniciar sesión</Link>}
-        </nav>
-      </header>
+      <CabeceraPublica />
 
       <main id="contenido">
         <section className="portada">
@@ -110,10 +102,7 @@ export function Inicio() {
         </section>
       </main>
 
-      <footer className="pie">
-        <p><strong>Grupo 15 · Viaje a Cusco</strong> — Diseño Web, trabajo final. Caso académico ficticio.</p>
-        <p>TransAndino Perú: Pérez Huamani, Julius Axl Nicolai · Aeropuerto Internacional del Cusco: Mueras Villanueva, Jefferson Percy</p>
-      </footer>
+      <PiePublico />
     </div>
   );
 }

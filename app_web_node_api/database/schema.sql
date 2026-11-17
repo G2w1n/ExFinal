@@ -6,7 +6,7 @@
 -- las tablas, y luego carga los datos de prueba. Úsalo en la base del grupo.
 -- =====================================================================
 
-DROP TABLE IF EXISTS notas_cliente, estados_historial, pagos, reservas_estacionamiento,
+DROP TABLE IF EXISTS cajas, notas_cliente, estados_historial, pagos, reservas_estacionamiento,
   compras_pasajes, rutas, usuario_rol, usuarios CASCADE;
 
 -- ---------- Común: un usuario, varios roles ----------
@@ -85,8 +85,11 @@ CREATE TABLE pagos (
   entidad           TEXT NOT NULL CHECK (entidad IN ('pasaje', 'reserva')),
   id_entidad        INTEGER NOT NULL,
   id_usuario        INTEGER NOT NULL REFERENCES usuarios (id),
-  metodo            TEXT NOT NULL CHECK (metodo IN ('tarjeta', 'billetera', 'efectivo')),
+  metodo            TEXT NOT NULL CHECK (metodo IN ('tarjeta', 'billetera', 'efectivo', 'pos')),
   monto             NUMERIC(10, 2) NOT NULL CHECK (monto >= 0),
+  id_cajero         INTEGER REFERENCES usuarios (id),   -- NULL = pago en línea
+  monto_recibido    NUMERIC(10, 2),                     -- efectivo: lo que entregó el cliente
+  vuelto            NUMERIC(10, 2),
   fecha             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (entidad, id_entidad)
 );
@@ -103,6 +106,22 @@ CREATE TABLE estados_historial (
   fecha       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX estados_historial_entidad ON estados_historial (entidad, id_entidad, fecha);
+
+-- ---------- Caja (ventanilla): apertura con fondo inicial y arqueo al cerrar ----------
+CREATE TABLE cajas (
+  id                 SERIAL PRIMARY KEY,
+  cajero_id          INTEGER NOT NULL REFERENCES usuarios (id),
+  apertura           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  monto_inicial      NUMERIC(10, 2) NOT NULL CHECK (monto_inicial >= 0),
+  cierre             TIMESTAMPTZ,
+  efectivo_esperado  NUMERIC(10, 2),
+  efectivo_contado   NUMERIC(10, 2),
+  diferencia         NUMERIC(10, 2),
+  nota               TEXT CHECK (char_length(nota) <= 200),
+  estado             TEXT NOT NULL DEFAULT 'abierta' CHECK (estado IN ('abierta', 'cerrada'))
+);
+-- Un cajero tiene como máximo una caja abierta
+CREATE UNIQUE INDEX cajas_una_abierta ON cajas (cajero_id) WHERE estado = 'abierta';
 
 CREATE TABLE notas_cliente (
   id          SERIAL PRIMARY KEY,

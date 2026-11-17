@@ -14,6 +14,9 @@ export const momento = (valor) => (valor
   ? new Date(valor).toLocaleString('es-PE', { timeZone: 'America/Lima', dateStyle: 'short', timeStyle: 'short' })
   : '—');
 
+// Fecha con zona -> solo la hora de Lima, "14:05"
+export const horaDe = (valor) => (valor ? new Date(valor).toLocaleTimeString('es-PE', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit', hour12: false }) : '—');
+
 export const hoyEnLima = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
 // Valor para <input type="datetime-local"> dentro de N horas
 export function dentroDe(horas) {

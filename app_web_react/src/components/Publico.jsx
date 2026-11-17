@@ -27,7 +27,7 @@ export function PiePublico() {
     <footer className="pie">
       <p><strong>Grupo 15 · Viaje a Cusco</strong> — Diseño Web, trabajo final. Caso académico ficticio.</p>
       <p>TransAndino Perú: Pérez Huamani, Julius Axl Nicolai · Aeropuerto Internacional del Cusco: Mueras Villanueva, Jefferson Percy</p>
-      <p>Terminal terrestre: Av. Velasco Astete s/n, Wanchaq · Aeropuerto: Av. Velasco Astete s/n, Cusco · Central (084) 000-000</p>
+      <p>TransAndino Cusco: Av. El Sol 450 · (084) 567-890 · Aeropuerto: Av. de la Aviación s/n, Cusco · (084) 000-000</p>
     </footer>
   );
 }

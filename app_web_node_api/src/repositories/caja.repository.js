@@ -49,7 +49,7 @@ export async function pendientes({ buscar = '', pasajes, reservas }) {
        WHERE $2 AND p.estado = 'registrado'
       UNION ALL
       SELECT 'reserva', e.id, e.codigo, u.nombre, u.correo,
-             'Placa ' || e.placa || ' · ' || e.horas || ' h', e.monto, e.fecha_hora_entrada
+             'Placa ' || e.placa || ' · ' || trim_scale(e.horas) || ' h', e.monto, e.fecha_hora_entrada
         FROM reservas_estacionamiento e JOIN usuarios u ON u.id = e.id_usuario
        WHERE $3 AND e.estado = 'registrado'
     ) x

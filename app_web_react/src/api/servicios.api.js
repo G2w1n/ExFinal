@@ -57,3 +57,11 @@ export const crmApi = {
   ficha: (id) => datos(api.get(`/crm/clientes/${id}`)),
   nota: (id, texto) => datos(api.post(`/crm/clientes/${id}/notas`, { texto })),
 };
+
+export const cajaApi = {
+  estado: () => datos(api.get('/caja')),
+  abrir: (montoInicial) => datos(api.post('/caja/abrir', { monto_inicial: montoInicial })),
+  pendientes: (buscar) => datos(api.get('/caja/pendientes', { params: { buscar } })),
+  cobrar: (d) => datos(api.post('/caja/cobrar', d)),
+  cerrar: (contado, nota) => datos(api.post('/caja/cerrar', { contado, nota })),
+};

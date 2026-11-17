@@ -1,10 +1,12 @@
 // src/pages/Inicio.jsx
 // Portada pública común: TransAndino + Aeropuerto en un solo sitio
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { pasajesApi } from '../api/servicios.api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { hoyEnLima, soles } from '../utils/formato.js';
+import { CabeceraPublica, PiePublico } from '../components/Publico.jsx';
+import { Tablero } from '../vuelos/Tablero.jsx';
 
 const PASOS = [
   ['1', 'Compra tu pasaje', 'Elige la ruta a Cusco, tu asiento y tu equipaje con TransAndino.'],
@@ -15,6 +17,7 @@ const PASOS = [
 export function Inicio() {
   const { usuario } = useAuth();
   const navegar = useNavigate();
+  const { hash } = useLocation();
   const [rutas, setRutas] = useState([]);
   const [busqueda, setBusqueda] = useState({ id_ruta: '', fecha: hoyEnLima() });
 
@@ -26,6 +29,11 @@ export function Inicio() {
     }).catch(() => setRutas([]));
   }, []);
 
+  // Los enlaces del menú público (/#rutas, /#servicios) bajan a su sección
+  useEffect(() => {
+    if (hash) setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }), 50);
+  }, [hash]);
+
   function buscar(e) {
     e.preventDefault();
     const destino = `/app/transandino/comprar?ruta=${busqueda.id_ruta}&fecha=${busqueda.fecha}`;
@@ -34,17 +42,7 @@ export function Inicio() {
 
   return (
     <div className="publico">
-      <header className="barra barra-publica">
-        <Link to="/" className="marca">Viaje a Cusco <small>Grupo 15</small></Link>
-        <nav aria-label="Principal">
-          <a href="#como-funciona">Cómo funciona</a>
-          <a href="#rutas">Rutas</a>
-          <a href="#estacionamiento">Estacionamiento</a>
-          {usuario
-            ? <Link className="btn btn-claro" to="/app">Ir a mi cuenta</Link>
-            : <Link className="btn btn-claro" to="/login">Iniciar sesión</Link>}
-        </nav>
-      </header>
+      <CabeceraPublica />
 
       <main id="contenido">
         <section className="portada">
@@ -94,6 +92,14 @@ export function Inicio() {
           </article>
         </section>
 
+        <section className="bloque" aria-label="Próximos vuelos">
+          <div className="cabecera-seccion">
+            <h2>Próximos vuelos</h2>
+            <Link to="/vuelos">Ver todos los vuelos →</Link>
+          </div>
+          <Tablero compacto limite={6} />
+        </section>
+
         <section id="rutas" className="bloque">
           <h2>Rutas y horarios</h2>
           <div className="tabla-scroll">
@@ -108,12 +114,53 @@ export function Inicio() {
             </table>
           </div>
         </section>
+
+        <section id="servicios" className="bloque">
+          <h2>Servicios</h2>
+          <div className="servicios">
+            <article className="servicio app-ta"><img src="/img/asientos.webp" alt="Asientos reclinables del bus" width="900" height="599" loading="lazy" /><div><h3>Transporte interprovincial</h3><p>Buses de última generación con asientos reclinables y monitoreo GPS continuo.</p></div></article>
+            <article className="servicio app-ta"><img src="/img/gps.webp" alt="Monitoreo GPS en tiempo real" width="700" height="420" loading="lazy" /><div><h3>Servicio VIP / ejecutivo</h3><p>Unidades panorámicas con snacks a bordo, WiFi, tomacorrientes en cada asiento y entretenimiento.</p></div></article>
+            <article className="servicio app-aero"><div><h3>Estacionamiento 24 horas</h3><p>A 50 metros del terminal, con vigilancia, zona techada VIP y espacio para buses. <Link to="/estacionamiento">Ver espacios libres</Link></p></div></article>
+            <article className="servicio app-aero"><div><h3>Vuelos en vivo</h3><p>Salidas y llegadas del aeropuerto con su estado y puerta. <Link to="/vuelos">Ver el tablero</Link></p></div></article>
+          </div>
+        </section>
+
+        <section id="requisitos" className="bloque">
+          <h2>Requisitos</h2>
+          <div className="requisitos">
+            <div className="tarjeta"><h3>Para viajar en bus</h3><ul>
+              <li>DNI o pasaporte físico vigente al abordar.</li>
+              <li>Pasaje impreso o en el celular.</li>
+              <li>Llegar al terminal 30 minutos antes.</li>
+              <li>Menores de edad: DNI físico y, si viajan solos o con un tercero, autorización notarial de los padres (norma del MTC).</li>
+            </ul></div>
+            <div className="tarjeta"><h3>Para el estacionamiento</h3><ul>
+              <li>Reserva pagada: el código QR del comprobante es tu pase de salida.</li>
+              <li>Si pagas en la caja, conserva tu comprobante.</li>
+              <li>Si te quedas más de lo reservado, el exceso se paga en caja antes de salir.</li>
+            </ul></div>
+          </div>
+        </section>
+
+        <section id="ubicacion" className="bloque">
+          <h2>Dónde estamos</h2>
+          <div className="requisitos">
+            <div className="tarjeta"><h3>TransAndino Perú</h3><ul>
+              <li><strong>Sede central Lima:</strong> Av. Javier Prado Este 1120, La Victoria · (01) 456-7890 · de 06:00 a 23:00</li>
+              <li><strong>Cusco:</strong> Av. El Sol 450 · (084) 567-890</li>
+              <li><strong>Arequipa:</strong> Terminal Terrestre, stand 14 · (054) 890-123</li>
+              <li><strong>Huancayo:</strong> Av. Ferrocarril 850 · (064) 234-567</li>
+            </ul></div>
+            <div className="tarjeta"><h3>Aeropuerto Internacional del Cusco</h3><ul>
+              <li>Av. de la Aviación s/n, Cusco</li>
+              <li>Estacionamiento abierto las 24 horas</li>
+              <li>Informes: (084) 000-000</li>
+            </ul></div>
+          </div>
+        </section>
       </main>
 
-      <footer className="pie">
-        <p><strong>Grupo 15 · Viaje a Cusco</strong> — Diseño Web, trabajo final. Caso académico ficticio.</p>
-        <p>TransAndino Perú: Pérez Huamani, Julius Axl Nicolai · Aeropuerto Internacional del Cusco: Mueras Villanueva, Jefferson Percy</p>
-      </footer>
+      <PiePublico />
     </div>
   );
 }

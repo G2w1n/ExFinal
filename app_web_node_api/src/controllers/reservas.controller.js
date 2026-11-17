@@ -2,11 +2,13 @@
 import * as s from '../services/reservas.service.js';
 import { idParam } from '../utils/validaciones.js';
 
+export const ocupacion = async (_req, res) => res.json(await s.ocupacion());
 export const cotizar = async (req, res) => res.json(s.cotizar(req.body ?? {}));
 export const crear = async (req, res) => res.status(201).json(await s.crear(req.usuario, req.body ?? {}));
 export const mias = async (req, res) => res.json(await s.mias(req.usuario));
 export const listar = async (req, res) => res.json(await s.listar(req.query));
 export const detalle = async (req, res) => res.json(await s.detalle(req.usuario, idParam(req.params.id)));
+export const comprobante = async (req, res) => res.json(await s.comprobante(req.usuario, idParam(req.params.id)));
 export const historial = async (req, res) => res.json(await s.historialDe(req.usuario, idParam(req.params.id)));
 export const editar = async (req, res) => res.json(await s.editar(req.usuario, idParam(req.params.id), req.body ?? {}));
 export const pagar = async (req, res) => res.json(await s.pagar(req.usuario, idParam(req.params.id), req.body ?? {}));

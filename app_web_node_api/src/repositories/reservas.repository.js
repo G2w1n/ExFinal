@@ -57,6 +57,20 @@ export async function asignarZona(db, id, zona) {
   await db.query(`UPDATE reservas_estacionamiento SET zona = $2 WHERE id = $1`, [id, zona]);
 }
 
+// Vehículos con reserva que están en el estacionamiento AHORA (hora de Perú), por zona,
+// y los que llegan en las próximas 2 horas
+export async function ocupacion() {
+  const { rows } = await pool.query(`
+    WITH ahora AS (SELECT (NOW() AT TIME ZONE 'America/Lima') AS t)
+    SELECT CASE WHEN e.tipo = 'bus' THEN 'bus' WHEN e.zona_vip THEN 'vip' ELSE 'normal' END AS zona,
+           COUNT(*) FILTER (WHERE e.fecha_hora_entrada <= a.t AND e.fecha_hora_entrada + e.horas * INTERVAL '1 hour' > a.t)::int AS ahora,
+           COUNT(*) FILTER (WHERE e.fecha_hora_entrada > a.t AND e.fecha_hora_entrada <= a.t + INTERVAL '2 hours')::int AS llegan
+      FROM reservas_estacionamiento e, ahora a
+     WHERE e.estado IN ('registrado', 'pagado', 'preparado')
+     GROUP BY 1`);
+  return Object.fromEntries(rows.map((f) => [f.zona, { ahora: f.ahora, llegan: f.llegan }]));
+}
+
 export async function eliminar(db, id) {
   await db.query(`DELETE FROM estados_historial WHERE entidad = 'reserva' AND id_entidad = $1`, [id]);
   await db.query(`DELETE FROM reservas_estacionamiento WHERE id = $1`, [id]);

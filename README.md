@@ -66,6 +66,14 @@ ExFinal/
 | 2. Espacio para buses | HU-15.2 · RF-15.2 | El admin de TransAndino (cliente del aeropuerto) reserva espacio con `tipo = 'bus'`. El empleado del aeropuerto asigna la zona y TransAndino la ve. |
 | 3. Llegadas esperadas | HU-15.3 · RF-15.3 | El empleado ve las reservas unidas a los pasajes, ordenadas por `hora_llegada` del bus, y prepara los espacios. |
 
+**Páginas públicas y ventanilla (fase 8, traídas del Parcial y de TransAndino)**
+- **Portada común:** buscador de viaje, próximos vuelos, servicios, requisitos y ubicación de las dos empresas.
+- **Vuelos en vivo** (`/vuelos`): tablero de salidas y llegadas con letras que giran. Los vuelos son simulados y cambian con la hora de Cusco.
+- **Estacionamiento** (`/estacionamiento`): espacios libres por zona (general, VIP, buses), con las reservas reales de la base más los vehículos sin reserva (simulado), y una calculadora de precio.
+- **Comprobante con QR** de cada pasaje y reserva pagados. Es imprimible, y el QR de la reserva es el pase de salida.
+- **Caja (ventanilla única):** apertura con fondo inicial, cobro en efectivo (con vuelto), POS o billetera, ticket, y arqueo al cerrar (si hay diferencia, pide una nota). El personal de TransAndino cobra pasajes y el del Aeropuerto, estacionamiento.
+- **Garita de salida:** lee con la cámara el QR del comprobante (o se escribe la placa o el código), dice si puede salir y registra la salida.
+
 **CRM (trazabilidad, como en la guía de Delicia)**
 - La tabla `estados_historial` guarda **cada cambio de estado, quién lo hizo y cuándo**.
 - La **ficha del cliente** junta sus pasajes, reservas, pagos, línea de tiempo y notas de seguimiento.
@@ -108,6 +116,9 @@ Los datos de prueba se crean **relativos a la fecha de hoy**: siempre hay buses 
 
 > El archivo `.env` **nunca** se sube a GitHub (está en `.gitignore`).
 
+### Si tu base ya tiene datos: migración de la fase 8
+Para la caja hacen falta la tabla `cajas` y tres columnas nuevas en `pagos`. En **Neon → SQL Editor** pega `app_web_node_api/database/migracion-fase-8.sql` y pulsa **Run**. No borra nada y se puede ejecutar dos veces. Al final debe mostrar `listo · 3 · 1`.
+
 ## Paso 2 · Probar en tu PC
 
 ```bash
@@ -131,7 +142,7 @@ Pruebas de las reglas de precio: `cd app_web_node_api && npm test`.
    - `DATABASE_URL` = la cadena de Neon
    - `DB_SSL` = `true`
    - `JWT_SECRET` = una frase larga (el blueprint la genera sola)
-   - `CORS_ORIGIN` = el link de Vercel del paso 4 (sin `/` al final)
+   - `CORS_ORIGIN` = el link de Vercel del paso 4. Con `*` acepta también las vistas previas de Vercel, por ejemplo `https://exfinal*.vercel.app` (varios links se separan con coma)
 3. Al terminar, abre `https://TU-API.onrender.com/api/salud`.
 
 > En el plan gratis, Render **se duerme** después de 15 minutos sin uso, y la primera petición tarda cerca de 50 s. Antes de la exposición, abre la página unos minutos antes.
@@ -139,7 +150,7 @@ Pruebas de las reglas de precio: `cd app_web_node_api && npm test`.
 ## Paso 4 · Publicar el React en Vercel
 
 1. En [vercel.com](https://vercel.com): *Add New → Project*, este repositorio, **Root Directory** `app_web_react` (Vite se detecta solo).
-2. Variable de entorno: `VITE_API_URL` = `https://TU-API.onrender.com/api`
+2. Variable de entorno: `VITE_API_URL` = `https://TU-API.onrender.com/api`. Vite la guarda **al construir**: si la cambias, usa *Redeploy*. Si falta, la página publicada usa la API de Render del grupo (`exfinal-hd5z.onrender.com`).
 3. *Deploy*. Después vuelve a Render y pon ese link en `CORS_ORIGIN`.
 
 `vercel.json` hace que las rutas de React (por ejemplo `/app/mis-viajes`) funcionen al recargar.
@@ -157,12 +168,15 @@ Pruebas de las reglas de precio: `cd app_web_node_api && npm test`.
 | `GET /api/integraciones/mis-viajes` · `GET /prellenado/:idPasaje` | cliente |
 | `POST /api/integraciones/espacio-bus` · `GET /mis-buses` | admin TransAndino |
 | `GET /api/integraciones/llegadas?fecha=` | personal Aeropuerto |
+| `GET /api/reservas/ocupacion` | público (mapa del estacionamiento) |
+| `GET /api/pasajes/:id/comprobante` · `GET /api/reservas/:id/comprobante` | dueño o personal de esa app |
+| `GET /api/caja` · `POST /api/caja/abrir` · `GET /api/caja/pendientes` · `POST /api/caja/cobrar` · `POST /api/caja/cerrar` | personal (cada uno cobra lo de su app) |
 | `GET /api/crm/clientes` · `GET /api/crm/clientes/:id` · `POST /:id/notas` · `GET /api/crm/indicadores` | personal de cualquiera de las dos apps |
 
 Todas las respuestas de error tienen la forma `{ "mensaje": "…" }`.
 
 ## Modelo de datos
 
-`usuarios` (1) — (N) `usuario_rol` (modulo, rol) · `rutas` (1) — (N) `compras_pasajes` (1) — (0..1) `reservas_estacionamiento` (por `id_pasaje`) · `pagos` y `estados_historial` para pasajes y reservas · `notas_cliente` para el CRM.
+`usuarios` (1) — (N) `usuario_rol` (modulo, rol) · `rutas` (1) — (N) `compras_pasajes` (1) — (0..1) `reservas_estacionamiento` (por `id_pasaje`) · `pagos` (con cajero, monto recibido y vuelto) y `estados_historial` para pasajes y reservas · `cajas` para la apertura y el arqueo · `notas_cliente` para el CRM.
 
 Las fechas de viaje y de ingreso se guardan en **hora de Perú** (`TIMESTAMP` sin zona); las fechas de registro, pagos e historial usan `TIMESTAMPTZ`.

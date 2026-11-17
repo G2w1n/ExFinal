@@ -57,6 +57,7 @@ export function ComprarPasaje() {
           <p>Total {soles(comprado.precio)} · <Estado valor={comprado.estado} /></p>
           <div className="acciones">
             {comprado.estado === 'registrado' && <button type="button" className="btn btn-ta" onClick={() => setPagando(true)}>Pagar ahora</button>}
+            {comprado.estado === 'pagado' && <Link className="btn btn-borde" to={`/app/comprobante/pasaje/${comprado.id}`}>Ver comprobante</Link>}
             {!esPersonal && (
               <Link className="btn btn-aero" to={`/app/aeropuerto/reservar?pasaje=${comprado.id}`}>Reservar estacionamiento</Link>
             )}

@@ -68,6 +68,7 @@ export function Reservar() {
           <p>Total {soles(creada.monto)} · <Estado valor={creada.estado} /></p>
           <div className="acciones">
             {creada.estado === 'registrado' && <button type="button" className="btn btn-aero" onClick={() => setPagando(true)}>Pagar ahora</button>}
+            {creada.estado === 'pagado' && <Link className="btn btn-borde" to={`/app/comprobante/reserva/${creada.id}`}>Comprobante (QR)</Link>}
             <Link className="btn btn-borde" to={creada.pasaje_codigo ? '/app/mis-viajes' : '/app/aeropuerto/mis-reservas'}>{creada.pasaje_codigo ? 'Ver Mis viajes' : 'Ver mis reservas'}</Link>
           </div>
         </div>

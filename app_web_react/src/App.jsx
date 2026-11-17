@@ -1,5 +1,6 @@
 // src/App.jsx
 // React Router: todas las rutas de la SPA. Cada página valida el rol del usuario en su módulo.
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout.jsx';
 import { RutaProtegida } from './components/RutaProtegida.jsx';
@@ -22,6 +23,14 @@ import { LlegadasEsperadas } from './integraciones/LlegadasEsperadas.jsx';
 import { Clientes } from './crm/Clientes.jsx';
 import { FichaCliente } from './crm/FichaCliente.jsx';
 import { Indicadores } from './crm/Indicadores.jsx';
+import { Caja } from './ventanilla/Caja.jsx';
+
+// Se cargan solo cuando se abren: el lector QR (garita) y el generador de QR (comprobante) pesan
+const Garita = lazy(() => import('./ventanilla/Garita.jsx').then((m) => ({ default: m.Garita })));
+const Comprobante = lazy(() => import('./pages/Comprobante.jsx').then((m) => ({ default: m.Comprobante })));
+const cargando = <p className="carga" role="status"><span className="girando" aria-hidden="true" /> Cargando…</p>;
+import { Vuelos } from './pages/Vuelos.jsx';
+import { Estacionamiento } from './pages/Estacionamiento.jsx';
 
 const TODOS = ['cliente', 'administrador', 'empleado'];
 const PERSONAL = ['administrador', 'empleado'];
@@ -29,10 +38,13 @@ const ruta = (modulo, roles, elemento) => <RutaProtegida modulo={modulo} roles={
 
 export default function App() {
   return (
+    <Suspense fallback={cargando}>
     <Routes>
       <Route path="/" element={<Inicio />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registro" element={<Registro />} />
+      <Route path="/vuelos" element={<Vuelos />} />
+      <Route path="/estacionamiento" element={<Estacionamiento />} />
       <Route path="/app" element={<RutaProtegida><Layout /></RutaProtegida>}>
         <Route index element={<Bienvenida />} />
         <Route path="transandino/comprar" element={ruta('transandino', TODOS, <ComprarPasaje />)} />
@@ -46,6 +58,9 @@ export default function App() {
         <Route path="aeropuerto/llegadas" element={ruta('aeropuerto', PERSONAL, <LlegadasEsperadas />)} />
         <Route path="aeropuerto/espacio-bus" element={ruta('transandino', ['administrador'], <EspacioBuses />)} />
         <Route path="mis-viajes" element={<MisViajes />} />
+        <Route path="comprobante/:tipo/:id" element={<Comprobante />} />
+        <Route path="caja" element={<RutaProtegida personal><Caja /></RutaProtegida>} />
+        <Route path="garita" element={ruta('aeropuerto', PERSONAL, <Garita />)} />
         <Route path="crm" element={<RutaProtegida personal><Clientes /></RutaProtegida>} />
         <Route path="crm/indicadores" element={<RutaProtegida personal><Indicadores /></RutaProtegida>} />
         <Route path="crm/clientes/:id" element={<RutaProtegida personal><FichaCliente /></RutaProtegida>} />
@@ -53,5 +68,6 @@ export default function App() {
       </Route>
       <Route path="*" element={<NoEncontrado />} />
     </Routes>
+    </Suspense>
   );
 }

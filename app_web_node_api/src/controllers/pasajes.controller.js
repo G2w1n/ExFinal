@@ -9,6 +9,7 @@ export const comprar = async (req, res) => res.status(201).json(await s.comprar(
 export const mios = async (req, res) => res.json(await s.misPasajes(req.usuario));
 export const listar = async (req, res) => res.json(await s.listar(req.query));
 export const detalle = async (req, res) => res.json(await s.detalle(req.usuario, idParam(req.params.id)));
+export const comprobante = async (req, res) => res.json(await s.comprobante(req.usuario, idParam(req.params.id)));
 export const historial = async (req, res) => res.json(await s.historialDe(req.usuario, idParam(req.params.id)));
 export const editar = async (req, res) => res.json(await s.editar(req.usuario, idParam(req.params.id), req.body ?? {}));
 export const pagar = async (req, res) => res.json(await s.pagar(req.usuario, idParam(req.params.id), req.body ?? {}));

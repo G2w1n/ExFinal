@@ -18,6 +18,7 @@ export const pasajesApi = {
   listar: (filtros) => datos(api.get('/pasajes', { params: filtros })),
   detalle: (id) => datos(api.get(`/pasajes/${id}`)),
   historial: (id) => datos(api.get(`/pasajes/${id}/historial`)),
+  comprobante: (id) => datos(api.get(`/pasajes/${id}/comprobante`)),
   editar: (id, d) => datos(api.put(`/pasajes/${id}`, d)),
   pagar: (id, metodo) => datos(api.post(`/pasajes/${id}/pagar`, { metodo })),
   cancelar: (id) => datos(api.post(`/pasajes/${id}/cancelar`)),
@@ -26,12 +27,14 @@ export const pasajesApi = {
 };
 
 export const reservasApi = {
+  ocupacion: () => datos(api.get('/reservas/ocupacion')),
   cotizar: (d) => datos(api.post('/reservas/cotizar', d)),
   crear: (d) => datos(api.post('/reservas', d)),
   mias: () => datos(api.get('/reservas/mias')),
   listar: (filtros) => datos(api.get('/reservas', { params: filtros })),
   detalle: (id) => datos(api.get(`/reservas/${id}`)),
   historial: (id) => datos(api.get(`/reservas/${id}/historial`)),
+  comprobante: (id) => datos(api.get(`/reservas/${id}/comprobante`)),
   editar: (id, d) => datos(api.put(`/reservas/${id}`, d)),
   pagar: (id, metodo) => datos(api.post(`/reservas/${id}/pagar`, { metodo })),
   cancelar: (id) => datos(api.post(`/reservas/${id}/cancelar`)),
@@ -53,4 +56,12 @@ export const crmApi = {
   clientes: (filtros) => datos(api.get('/crm/clientes', { params: filtros })),
   ficha: (id) => datos(api.get(`/crm/clientes/${id}`)),
   nota: (id, texto) => datos(api.post(`/crm/clientes/${id}/notas`, { texto })),
+};
+
+export const cajaApi = {
+  estado: () => datos(api.get('/caja')),
+  abrir: (montoInicial) => datos(api.post('/caja/abrir', { monto_inicial: montoInicial })),
+  pendientes: (buscar) => datos(api.get('/caja/pendientes', { params: { buscar } })),
+  cobrar: (d) => datos(api.post('/caja/cobrar', d)),
+  cerrar: (contado, nota) => datos(api.post('/caja/cerrar', { contado, nota })),
 };

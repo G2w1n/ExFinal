@@ -77,6 +77,14 @@ async function obtenerPermitido(usuario, id) {
 }
 
 export const detalle = (usuario, id) => obtenerPermitido(usuario, id);
+
+// Comprobante: solo de un pasaje pagado
+export async function comprobante(usuario, id) {
+  const pasaje = await obtenerPermitido(usuario, id);
+  const pago = await pagos.deEntidad('pasaje', id);
+  if (!pago) throw new AppError(409, 'Este pasaje todavía no está pagado.');
+  return { pasaje, pago };
+}
 export const misPasajes = (usuario) => repo.deUsuario(usuario.id);
 export const listar = (filtros) => repo.listar({ buscar: String(filtros.buscar ?? ''), estado: String(filtros.estado ?? ''), fecha: String(filtros.fecha ?? '') });
 

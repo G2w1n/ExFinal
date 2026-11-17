@@ -63,6 +63,7 @@ export function MisReservas() {
                 {r.estado === 'registrado' && <button type="button" className="btn btn-aero" onClick={() => setPagando(r)}>Pagar</button>}
                 {r.estado === 'registrado' && <Link className="btn btn-borde" to={`/app/aeropuerto/reservas/${r.id}/editar`}>Editar</Link>}
                 {r.estado === 'registrado' && <button type="button" className="btn btn-peligro" onClick={() => cancelar(r)}>Cancelar</button>}
+                {['pagado', 'preparado', 'finalizado'].includes(r.estado) && <Link className="btn btn-borde" to={`/app/comprobante/reserva/${r.id}`}>Comprobante (QR)</Link>}
                 <button type="button" className="btn btn-borde" aria-expanded={abierto === r.id} onClick={() => verHistorial(r)}>Seguimiento</button>
               </div>
               {abierto === r.id && <Historial pasos={historial} />}

@@ -3,6 +3,18 @@
 // Se recalcula cada 30 segundos con la hora de Perú.
 import { useEffect, useMemo, useState } from 'react';
 import { AEROLINEAS, ahoraEnLima, aHora, filtrarVuelos, obtenerVuelos } from './datosVuelos.js';
+import { useAvisos } from '../context/AvisosContext.jsx';
+
+// Vuelos seguidos (☆): se guardan en este navegador con lo último que vio el pasajero
+const CLAVE = 'grupo15.vuelosSeguidos';
+const leerSeguidos = () => { try { return JSON.parse(localStorage.getItem(CLAVE)) ?? {}; } catch { return {}; } };
+const guardarSeguidos = (s) => { try { localStorage.setItem(CLAVE, JSON.stringify(s)); } catch { /* sin almacenamiento */ } };
+const foto = (v) => ({ estado: v.estado.texto, puerta: v.puerta, hora: v.horaEstimada });
+function cuenta(min, tipo) {
+  if (min <= 0) return tipo === 'salida' ? 'ya salió' : 'ya llegó';
+  const h = Math.floor(min / 60);
+  return h ? `en ${h} h ${min % 60} min` : `en ${min} min`;
+}
 
 // Cada letra gira al aparecer; key={texto} la vuelve a animar cuando cambia el valor
 function Paleta({ texto, ancho }) {
@@ -20,6 +32,34 @@ export function Tablero({ compacto = false, limite = 0 }) {
   const [texto, setTexto] = useState('');
   const [aerolinea, setAerolinea] = useState('');
   const [reloj, setReloj] = useState(() => aHora(ahoraEnLima().minutos));
+  const [seguidos, setSeguidos] = useState(leerSeguidos);
+  const avisar = useAvisos();
+
+  function alternarSeguir(v) {
+    const nuevos = { ...seguidos };
+    if (nuevos[v.id]) { delete nuevos[v.id]; avisar(`Dejaste de seguir ${v.codigo}.`); }
+    else { nuevos[v.id] = foto(v); avisar(`Siguiendo ${v.codigo}: te avisamos si cambia su estado o su puerta.`); }
+    setSeguidos(nuevos);
+    guardarSeguidos(nuevos);
+  }
+
+  // Cada vez que se recalcula el tablero, compara los vuelos seguidos con lo último que se vio
+  useEffect(() => {
+    let cambio = false;
+    const nuevos = { ...seguidos };
+    vuelos.forEach((v) => {
+      const antes = seguidos[v.id];
+      if (!antes) return;
+      const ahora = foto(v);
+      if (antes.puerta !== ahora.puerta) avisar(`✈ ${v.codigo}: cambio de puerta a ${ahora.puerta}`);
+      else if (antes.estado !== ahora.estado) avisar(`✈ ${v.codigo}: ${ahora.estado}`);
+      if (antes.puerta !== ahora.puerta || antes.estado !== ahora.estado || antes.hora !== ahora.hora) { nuevos[v.id] = ahora; cambio = true; }
+    });
+    if (cambio) { setSeguidos(nuevos); guardarSeguidos(nuevos); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vuelos]);
+  const misVuelos = vuelos.filter((v) => seguidos[v.id]);
+  const ahoraMin = ahoraEnLima().minutos;
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -48,6 +88,17 @@ export function Tablero({ compacto = false, limite = 0 }) {
           ))}
         </div>
       </div>
+      {misVuelos.length > 0 && (
+        <div className="mis-vuelos" aria-label="Vuelos que sigues">
+          {misVuelos.map((v) => (
+            <div key={v.id} className="mi-vuelo">
+              <strong>{v.codigo}</strong> {v.tipo === 'salida' ? '→' : '←'} {v.ciudad}
+              <span className={`estado-vuelo ev-${v.estado.clave}`}>{v.estado.texto}</span>
+              <span className="mi-vuelo-cuenta">{v.minutosEstimados - ahoraMin > 0 ? `${v.tipo === 'salida' ? 'Sale' : 'Llega'} ${cuenta(v.minutosEstimados - ahoraMin, v.tipo)}` : cuenta(0, v.tipo)} · puerta {v.puerta}</span>
+            </div>
+          ))}
+        </div>
+      )}
       {!compacto && (
         <div className="tablero-filtros">
           <label className="visualmente-oculto" htmlFor="buscar-vuelo">Buscar vuelo</label>
@@ -63,7 +114,7 @@ export function Tablero({ compacto = false, limite = 0 }) {
         <table className="tabla-tablero">
           <caption className="visualmente-oculto">{tipo === 'salida' ? 'Salidas' : 'Llegadas'} del día</caption>
           <thead>
-            <tr><th>Hora</th><th>Vuelo</th><th>{tipo === 'salida' ? 'Destino' : 'Origen'}</th><th>Puerta</th><th>Estado</th></tr>
+            <tr><th>Hora</th><th>Vuelo</th><th>{tipo === 'salida' ? 'Destino' : 'Origen'}</th><th>Puerta</th><th>Estado</th><th><span className="visualmente-oculto">Seguir</span></th></tr>
           </thead>
           <tbody>
             {lista.map((v) => (
@@ -82,6 +133,12 @@ export function Tablero({ compacto = false, limite = 0 }) {
                   <Paleta texto={v.puerta} ancho={2} /><span className="visualmente-oculto">Puerta {v.puerta}{v.puertaCambiada ? ', cambió' : ''}</span>
                 </td>
                 <td><span className={`estado-vuelo ev-${v.estado.clave}`}>{v.estado.texto}</span></td>
+                <td>
+                  <button type="button" className={`btn-seguir ${seguidos[v.id] ? 'siguiendo' : ''}`} aria-pressed={Boolean(seguidos[v.id])}
+                    aria-label={`${seguidos[v.id] ? 'Dejar de seguir' : 'Seguir'} el vuelo ${v.codigo}`} onClick={() => alternarSeguir(v)}>
+                    {seguidos[v.id] ? '★' : '☆'}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

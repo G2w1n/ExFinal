@@ -10,6 +10,8 @@ import { Pagina } from '../components/Pagina.jsx';
 import { useAvisos } from '../context/AvisosContext.jsx';
 import { useCarga } from '../hooks/useCarga.js';
 import { fechaHora, horaDe, soles } from '../utils/formato.js';
+import { Numero } from '../components/Numero.jsx';
+import { TicketCobro } from './TicketCobro.jsx';
 
 const METODOS = { efectivo: 'Efectivo', pos: 'Tarjeta en POS', billetera: 'Billetera (Yape / Plin)' };
 const BILLETES = [10, 20, 50, 100, 200];
@@ -29,6 +31,18 @@ export function Caja() {
   const [enviando, setEnviando] = useState(false);
   const dialogo = useRef(null);
   const dialogoCierre = useRef(null);
+  const inputBuscar = useRef(null);
+
+  // Atajos de teclado: F2 buscar, F4 cobrar el primero de la lista
+  useEffect(() => {
+    const atajo = (e) => {
+      if (document.querySelector('dialog[open]')) return;
+      if (e.key === 'F2') { e.preventDefault(); inputBuscar.current?.focus(); }
+      if (e.key === 'F4' && pendientes[0]) { e.preventDefault(); setCobro(pendientes[0]); setMetodo('efectivo'); setRecibido(''); }
+    };
+    document.addEventListener('keydown', atajo);
+    return () => document.removeEventListener('keydown', atajo);
+  }, [pendientes]);
 
   const abierta = Boolean(caja?.caja);
   const buscarPendientes = async (texto = buscar) => {
@@ -105,24 +119,18 @@ export function Caja() {
               <div className="indicador"><span>Abierta desde</span><strong>{horaDe(caja.caja.apertura)}</strong></div>
               <div className="indicador"><span>Fondo inicial</span><strong>{soles(caja.caja.monto_inicial)}</strong></div>
               {Object.keys(METODOS).map((m) => (
-                <div key={m} className="indicador"><span>{METODOS[m]}</span><strong>{soles(caja.totales.find((t) => t.metodo === m)?.total ?? 0)}</strong></div>
+                <div key={m} className="indicador"><span>{METODOS[m]}</span><strong><Numero valor={caja.totales.find((t) => t.metodo === m)?.total ?? 0} formato={soles} /></strong></div>
               ))}
-              <div className="indicador destacado"><span>Efectivo esperado</span><strong>{soles(caja.esperado)}</strong></div>
+              <div className="indicador destacado"><span>Efectivo esperado</span><strong><Numero valor={caja.esperado} formato={soles} /></strong></div>
             </div>
 
-            {ultimo && (
-              <p className="banda-exito" role="status">
-                Cobro registrado · <strong>{ultimo.codigo}</strong> · {soles(ultimo.monto)}
-                {ultimo.vuelto != null && <> · vuelto <strong>{soles(ultimo.vuelto)}</strong></>} ·{' '}
-                <Link to={`/app/comprobante/${ultimo.entidad}/${ultimo.id}`}>Ver comprobante</Link>
-              </p>
-            )}
+            {ultimo && <TicketCobro cobro={ultimo} onCerrar={() => setUltimo(null)} />}
 
             <section className="tarjeta">
-              <h2>Pendientes de pago</h2>
+              <div className="cabecera-seccion"><h2>Pendientes de pago</h2><p className="atajos">Atajos: <kbd>F2</kbd> buscar · <kbd>F4</kbd> cobrar el primero</p></div>
               <form className="filtros" onSubmit={(e) => { e.preventDefault(); buscarPendientes(); }}>
                 <label className="visualmente-oculto" htmlFor="caja-buscar">Buscar</label>
-                <input id="caja-buscar" type="search" placeholder="Código, placa, nombre o correo" value={buscar} onChange={(e) => setBuscar(e.target.value)} />
+                <input ref={inputBuscar} id="caja-buscar" type="search" placeholder="Código, placa, nombre o correo" value={buscar} onChange={(e) => setBuscar(e.target.value)} />
                 <button className="btn" type="submit">Buscar</button>
               </form>
               {pendientes.length === 0 ? <p className="vacio">No hay pendientes con esa búsqueda.</p> : (

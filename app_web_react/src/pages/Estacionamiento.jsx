@@ -7,6 +7,8 @@ import { reservasApi } from '../api/servicios.api.js';
 import { Desglose } from '../components/Desglose.jsx';
 import { CabeceraPublica, PiePublico } from '../components/Publico.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { Numero } from '../components/Numero.jsx';
+import { Revelar } from '../components/Revelar.jsx';
 import { useCarga } from '../hooks/useCarga.js';
 import { dentroDe } from '../utils/formato.js';
 import { ahoraEnLima, aHora } from '../vuelos/datosVuelos.js';
@@ -77,7 +79,7 @@ export function Estacionamiento() {
             <div className="contadores" aria-live="polite">
               {zonas.map((z) => (
                 <div key={z.clave} className={`contador ${z.libres <= z.capacidad * 0.1 ? 'casi-lleno' : ''}`}>
-                  <strong>{z.libres}</strong><span>{z.nombre}</span>
+                  <strong><Numero valor={z.libres} /></strong><span>{z.nombre}</span>
                   <span className="contador-barra"><span style={{ width: `${((z.capacidad - z.libres) / z.capacidad) * 100}%` }} /></span>
                 </div>
               ))}
@@ -97,15 +99,16 @@ export function Estacionamiento() {
           </div>
           {error && <p className="caja-error">No se pudieron leer las reservas: el mapa muestra solo la ocupación simulada.</p>}
           <div className="mapa-playa">
-            {zonas.map((z) => (
-              <div key={z.clave} className={`zona zona-${z.clave}`}>
+            {zonas.map((z, n) => (
+              <Revelar key={z.clave} className={`zona zona-${z.clave}`} retraso={n * 120}>
                 <h3>{z.nombre} <span>{z.libres} libres de {z.capacidad}{z.llegan ? ` · ${z.llegan} llegan en 2 h` : ''}</span></h3>
                 <div className="espacios" role="img" aria-label={`${z.nombre}: ${z.libres} espacios libres de ${z.capacidad}`}>
                   {z.espacios.map((estado, i) => (
-                    <span key={i} className={`espacio ${estado}`} aria-hidden="true">{z.prefijo}{String(i + 1).padStart(2, '0')}</span>
+                    <span key={i} className={`espacio ${estado}`} aria-hidden="true"
+                      title={`${z.prefijo}${String(i + 1).padStart(2, '0')} · ${{ libre: 'libre', reservado: 'reserva en línea', ocupado: 'ocupado' }[estado]}`}>{z.prefijo}{String(i + 1).padStart(2, '0')}</span>
                   ))}
                 </div>
-              </div>
+              </Revelar>
             ))}
           </div>
         </section>

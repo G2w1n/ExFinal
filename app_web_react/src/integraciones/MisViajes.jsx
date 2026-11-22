@@ -7,6 +7,7 @@ import { Estado } from '../components/Estado.jsx';
 import { Pagina } from '../components/Pagina.jsx';
 import { useCarga } from '../hooks/useCarga.js';
 import { fechaHora, puedeReservarEstacionamiento, soles } from '../utils/formato.js';
+import { RutaBus } from './RutaBus.jsx';
 
 export function MisViajes() {
   const { datos, error, cargando, recargar } = useCarga(() => integracionesApi.misViajes(), [], { cadaSegundos: 10 });
@@ -17,6 +18,7 @@ export function MisViajes() {
         <ul className="lista-viajes">
           {datos?.pasajes.map((p) => (
             <li key={p.id} className="viaje">
+              <RutaBus pasaje={p} conEstacionamiento={Boolean(p.reserva_codigo)} />
               <div className="viaje-parte parte-ta">
                 <p className="etiqueta-app">TransAndino · {p.codigo}</p>
                 <h2>{p.origen} → {p.destino}</h2>

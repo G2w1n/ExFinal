@@ -4,9 +4,13 @@ import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { armarMenu, MODULOS } from '../utils/menu.js';
+import { BotonTema } from './BotonTema.jsx';
+import { BusquedaGlobal } from './BusquedaGlobal.jsx';
+import { Notificaciones } from './Notificaciones.jsx';
 
 export function Layout() {
-  const { usuario, salir } = useAuth();
+  const { usuario, salir, tiene } = useAuth();
+  const esPersonal = ['transandino', 'aeropuerto'].some((m) => tiene(m, 'administrador', 'empleado'));
   const navegar = useNavigate();
   const { pathname } = useLocation();
   const [abierto, setAbierto] = useState(false);
@@ -23,6 +27,9 @@ export function Layout() {
           <Link to="/app" className="marca">Viaje a Cusco <small>Grupo 15</small></Link>
         </div>
         <div className="barra-der">
+          {esPersonal && <BusquedaGlobal />}
+          <Notificaciones />
+          <BotonTema />
           <span className="usuario-chip" title={usuario.correo}>{usuario.nombre}</span>
           <button type="button" className="btn btn-claro" onClick={() => { salir(); navegar('/'); }}>Cerrar sesión</button>
         </div>
@@ -41,7 +48,8 @@ export function Layout() {
           ))}
         </nav>
         <main id="contenido" className="contenido" tabIndex={-1}>
-          <Outlet />
+          {/* key: cada página entra con una transición suave */}
+          <div key={pathname} className="transicion"><Outlet /></div>
         </main>
       </div>
     </div>

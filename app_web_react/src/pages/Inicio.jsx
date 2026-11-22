@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { hoyEnLima, soles } from '../utils/formato.js';
 import { CabeceraPublica, PiePublico } from '../components/Publico.jsx';
 import { Tablero } from '../vuelos/Tablero.jsx';
+import { Revelar } from '../components/Revelar.jsx';
 
 const PASOS = [
   ['1', 'Compra tu pasaje', 'Elige la ruta a Cusco, tu asiento y tu equipaje con TransAndino.'],
@@ -64,14 +65,14 @@ export function Inicio() {
           </div>
         </section>
 
-        <section id="como-funciona" className="bloque">
+        <Revelar as="section" id="como-funciona" className="bloque">
           <h2>Cómo funciona</h2>
           <ol className="pasos">
             {PASOS.map(([n, t, d]) => <li key={n}><span className="paso-n" aria-hidden="true">{n}</span><h3>{t}</h3><p>{d}</p></li>)}
           </ol>
-        </section>
+        </Revelar>
 
-        <section className="bloque dos-apps">
+        <Revelar as="section" className="bloque dos-apps">
           <article className="tarjeta-app app-ta">
             <img src="/img/buses.webp" alt="Buses de TransAndino en el terminal" width="800" height="533" loading="lazy" />
             <div>
@@ -90,17 +91,17 @@ export function Inicio() {
               <Link className="btn btn-aero" to={usuario ? '/app/aeropuerto/reservar' : '/login'}>Reservar estacionamiento</Link>
             </div>
           </article>
-        </section>
+        </Revelar>
 
-        <section className="bloque" aria-label="Próximos vuelos">
+        <Revelar as="section" className="bloque" aria-label="Próximos vuelos">
           <div className="cabecera-seccion">
             <h2>Próximos vuelos</h2>
             <Link to="/vuelos">Ver todos los vuelos →</Link>
           </div>
           <Tablero compacto limite={6} />
-        </section>
+        </Revelar>
 
-        <section id="rutas" className="bloque">
+        <Revelar as="section" id="rutas" className="bloque">
           <h2>Rutas y horarios</h2>
           <div className="tabla-scroll">
             <table className="tabla">
@@ -113,9 +114,9 @@ export function Inicio() {
               </tbody>
             </table>
           </div>
-        </section>
+        </Revelar>
 
-        <section id="servicios" className="bloque">
+        <Revelar as="section" id="servicios" className="bloque">
           <h2>Servicios</h2>
           <div className="servicios">
             <article className="servicio app-ta"><img src="/img/asientos.webp" alt="Asientos reclinables del bus" width="900" height="599" loading="lazy" /><div><h3>Transporte interprovincial</h3><p>Buses de última generación con asientos reclinables y monitoreo GPS continuo.</p></div></article>
@@ -123,9 +124,9 @@ export function Inicio() {
             <article className="servicio app-aero"><div><h3>Estacionamiento 24 horas</h3><p>A 50 metros del terminal, con vigilancia, zona techada VIP y espacio para buses. <Link to="/estacionamiento">Ver espacios libres</Link></p></div></article>
             <article className="servicio app-aero"><div><h3>Vuelos en vivo</h3><p>Salidas y llegadas del aeropuerto con su estado y puerta. <Link to="/vuelos">Ver el tablero</Link></p></div></article>
           </div>
-        </section>
+        </Revelar>
 
-        <section id="requisitos" className="bloque">
+        <Revelar as="section" id="requisitos" className="bloque">
           <h2>Requisitos</h2>
           <div className="requisitos">
             <div className="tarjeta"><h3>Para viajar en bus</h3><ul>
@@ -140,9 +141,9 @@ export function Inicio() {
               <li>Si te quedas más de lo reservado, el exceso se paga en caja antes de salir.</li>
             </ul></div>
           </div>
-        </section>
+        </Revelar>
 
-        <section id="ubicacion" className="bloque">
+        <Revelar as="section" id="ubicacion" className="bloque">
           <h2>Dónde estamos</h2>
           <div className="requisitos">
             <div className="tarjeta"><h3>TransAndino Perú</h3><ul>
@@ -157,7 +158,7 @@ export function Inicio() {
               <li>Informes: (084) 000-000</li>
             </ul></div>
           </div>
-        </section>
+        </Revelar>
       </main>
 
       <PiePublico />

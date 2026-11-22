@@ -8,6 +8,7 @@ import { Carga } from '../components/Carga.jsx';
 import { Estado } from '../components/Estado.jsx';
 import { Historial } from '../components/Historial.jsx';
 import { Pagina } from '../components/Pagina.jsx';
+import { Numero } from '../components/Numero.jsx';
 import { useAvisos } from '../context/AvisosContext.jsx';
 import { useCarga } from '../hooks/useCarga.js';
 import { fechaHora, momento, soles } from '../utils/formato.js';
@@ -47,10 +48,10 @@ export function FichaCliente() {
                 <p className="nota">Cliente desde {momento(c.creado)}</p>
               </div>
               <div className="indicadores">
-                <div className="indicador"><span>Pasajes</span><strong>{c.pasajes}</strong></div>
-                <div className="indicador"><span>Reservas</span><strong>{c.reservas}</strong></div>
-                <div className="indicador"><span>Pendientes</span><strong>{c.pendientes}</strong></div>
-                <div className="indicador"><span>Gastado</span><strong>{soles(c.gastado)}</strong></div>
+                <div className="indicador"><span>Pasajes</span><strong><Numero valor={c.pasajes} /></strong></div>
+                <div className="indicador"><span>Reservas</span><strong><Numero valor={c.reservas} /></strong></div>
+                <div className="indicador"><span>Pendientes</span><strong><Numero valor={c.pendientes} /></strong></div>
+                <div className="indicador"><span>Gastado</span><strong><Numero valor={c.gastado} formato={soles} /></strong></div>
               </div>
             </div>
             <div className="rejilla-2">

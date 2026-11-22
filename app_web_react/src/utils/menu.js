@@ -19,7 +19,7 @@ export function armarMenu(usuario) {
   if (aero) {
     let opciones = aero === 'cliente'
       ? [['/app/aeropuerto/reservar', 'Reservar estacionamiento'], ['/app/aeropuerto/mis-reservas', 'Mis reservas']]
-      : [['/app/aeropuerto/panel', 'Panel de reservas'], ['/app/aeropuerto/llegadas', 'Llegadas esperadas']];
+      : [['/app/aeropuerto/panel', 'Panel de reservas'], ['/app/aeropuerto/tablero', 'Tablero (arrastrar)'], ['/app/aeropuerto/llegadas', 'Llegadas esperadas']];
     // Integración 2: el administrador de TransAndino es cliente del aeropuerto y reserva espacio para sus buses
     if (ta === 'administrador') opciones = [...opciones, ['/app/aeropuerto/espacio-bus', 'Espacio para buses']];
     grupos.push({ modulo: 'aeropuerto', rol: aero, opciones });

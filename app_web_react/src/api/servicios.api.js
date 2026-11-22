@@ -51,6 +51,8 @@ export const integracionesApi = {
   llegadas: (fecha) => datos(api.get('/integraciones/llegadas', { params: { fecha } })),
 };
 
+export const notificacionesApi = { listar: () => datos(api.get('/notificaciones')) };
+
 export const crmApi = {
   indicadores: () => datos(api.get('/crm/indicadores')),
   clientes: (filtros) => datos(api.get('/crm/clientes', { params: filtros })),

@@ -17,6 +17,7 @@ import { Reservar } from './modulos/aeropuerto/Reservar.jsx';
 import { MisReservas } from './modulos/aeropuerto/MisReservas.jsx';
 import { EditarReserva } from './modulos/aeropuerto/EditarReserva.jsx';
 import { PanelReservas } from './modulos/aeropuerto/PanelReservas.jsx';
+import { TableroReservas } from './modulos/aeropuerto/TableroReservas.jsx';
 import { MisViajes } from './integraciones/MisViajes.jsx';
 import { EspacioBuses } from './integraciones/EspacioBuses.jsx';
 import { LlegadasEsperadas } from './integraciones/LlegadasEsperadas.jsx';
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="aeropuerto/mis-reservas" element={ruta('aeropuerto', TODOS, <MisReservas />)} />
         <Route path="aeropuerto/reservas/:id/editar" element={ruta('aeropuerto', TODOS, <EditarReserva />)} />
         <Route path="aeropuerto/panel" element={ruta('aeropuerto', PERSONAL, <PanelReservas />)} />
+        <Route path="aeropuerto/tablero" element={ruta('aeropuerto', PERSONAL, <TableroReservas />)} />
         <Route path="aeropuerto/llegadas" element={ruta('aeropuerto', PERSONAL, <LlegadasEsperadas />)} />
         <Route path="aeropuerto/espacio-bus" element={ruta('transandino', ['administrador'], <EspacioBuses />)} />
         <Route path="mis-viajes" element={<MisViajes />} />

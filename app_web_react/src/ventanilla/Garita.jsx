@@ -11,6 +11,7 @@ import { Pagina } from '../components/Pagina.jsx';
 import { useAvisos } from '../context/AvisosContext.jsx';
 import { fechaHora, dentroDe, soles } from '../utils/formato.js';
 import { sumarHorasTexto } from '../utils/fechas.js';
+import { Barrera } from './Barrera.jsx';
 
 // "G15|EST-00018|OP-…" -> "EST-00018"; también acepta la placa o el código escritos a mano
 function leerCriterio(texto) {
@@ -39,6 +40,7 @@ export function Garita() {
   const [criterio, setCriterio] = useState('');
   const [resultado, setResultado] = useState(null); // { criterio, filas, error }
   const [salidas, setSalidas] = useState([]);
+  const [barrera, setBarrera] = useState({ abierta: false, placa: '' });
 
   async function consultar(texto) {
     const c = leerCriterio(texto);
@@ -58,6 +60,8 @@ export function Garita() {
     try {
       await reservasApi.estado(r.id, 'finalizado');
       avisar(`Salida registrada: ${r.placa}. ¡Buen viaje!`);
+      setBarrera({ abierta: true, placa: r.placa });
+      setTimeout(() => setBarrera({ abierta: false, placa: '' }), 3500);
       setSalidas((s) => [{ placa: r.placa, codigo: r.codigo, hora: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) }, ...s].slice(0, 10));
       consultar(r.codigo);
     } catch (err) { avisar(mensajeDeError(err), 'error'); }
@@ -123,6 +127,7 @@ export function Garita() {
           )}
         </section>
         <section aria-live="polite">
+          <Barrera abierta={barrera.abierta} placa={barrera.placa} />
           {!resultado && <p className="vacio">Escanea un QR o escribe una placa para consultar.</p>}
           {resultado?.filas === null && <p className="carga">Consultando…</p>}
           {resultado?.error && <p className="caja-error">{resultado.error}</p>}

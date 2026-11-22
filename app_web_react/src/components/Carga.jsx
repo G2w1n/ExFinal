@@ -1,7 +1,13 @@
 // src/components/Carga.jsx
 // Estados comunes de una pantalla que espera datos de la API
 export function Carga({ cargando, error, vacio, textoVacio = 'No hay registros todavía.', reintentar, children }) {
-  if (cargando) return <p className="carga" role="status"><span className="girando" aria-hidden="true" /> Cargando…</p>;
+  if (cargando) {
+    return (
+      <div className="esqueleto" role="status" aria-label="Cargando">
+        {[0, 1, 2, 3].map((i) => <span key={i} className="esqueleto-fila" style={{ width: `${92 - i * 14}%` }} />)}
+      </div>
+    );
+  }
   if (error) {
     return (
       <div className="caja-error" role="alert">

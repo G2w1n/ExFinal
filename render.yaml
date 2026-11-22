@@ -16,4 +16,4 @@ services:
       - key: JWT_SECRET
         generateValue: true  # Render crea una clave secreta al azar
       - key: CORS_ORIGIN
-        sync: false          # el link de Vercel, por ejemplo https://exfinal.vercel.app
+        sync: false          # el link de Vercel; con * acepta las vistas previas: https://exfinal*.vercel.app

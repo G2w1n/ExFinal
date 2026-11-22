@@ -29,6 +29,11 @@ export function armarMenu(usuario) {
   }
   const personal = ['administrador', 'empleado'];
   if (personal.includes(ta) || personal.includes(aero)) {
+    const opciones = [['/app/caja', 'Caja']];
+    if (personal.includes(aero)) opciones.push(['/app/garita', 'Garita de salida']);
+    grupos.push({ modulo: 'ventanilla', titulo: 'Ventanilla', opciones });
+  }
+  if (personal.includes(ta) || personal.includes(aero)) {
     grupos.push({ modulo: 'crm', titulo: 'CRM', opciones: [['/app/crm', 'Clientes'], ['/app/crm/indicadores', 'Indicadores']] });
   }
   return grupos;

@@ -13,4 +13,4 @@ export const esPersonal = (usuario) => ['transandino', 'aeropuerto']
   .some((m) => tieneRol(usuario, m, 'administrador', 'empleado'));
 
 export const requirePersonal = (req, _res, next) =>
-  esPersonal(req.usuario) ? next() : next(new AppError(403, 'Solo el personal puede ver el CRM.'));
+  esPersonal(req.usuario) ? next() : next(new AppError(403, 'Esta opción es solo para el personal.'));

@@ -4,8 +4,12 @@ import axios from 'axios';
 
 export const CLAVE_TOKEN = 'grupo15.token';
 
+// Sin VITE_API_URL: en tu PC usa la API local y publicada usa la de Render
+const API_PUBLICADA = 'https://exfinal-hd5z.onrender.com/api';
+const enMiPC = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_URL || (enMiPC ? 'http://localhost:3000/api' : API_PUBLICADA),
   timeout: 60000, // Render gratis puede tardar en despertar
 });
 

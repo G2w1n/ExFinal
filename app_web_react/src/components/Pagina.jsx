@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { MODULOS } from '../utils/menu.js';
 
 export function Pagina({ modulo, titulo, intro, acciones, children }) {
-  const app = MODULOS[modulo]?.nombre ?? (modulo === 'crm' ? 'CRM' : 'Viaje a Cusco');
+  const app = MODULOS[modulo]?.nombre ?? { crm: 'CRM', ventanilla: 'Ventanilla' }[modulo] ?? 'Viaje a Cusco';
   useEffect(() => { document.title = `${titulo} · ${app} · Grupo 15`; }, [titulo, app]);
   return (
     <section className={`pagina pagina-${MODULOS[modulo]?.color ?? modulo}`}>

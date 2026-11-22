@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { mensajeDeError } from '../../api/client.js';
 import { reservasApi } from '../../api/servicios.api.js';
 import { Carga } from '../../components/Carga.jsx';
-import { DialogoPago } from '../../components/DialogoPago.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -22,7 +21,6 @@ export function PanelReservas() {
   const [filtros, setFiltros] = useState({ buscar: '', estado: '', tipo: '', fecha: '' });
   const [aplicados, setAplicados] = useState(filtros);
   const { datos, error, cargando, recargar } = useCarga(() => reservasApi.listar(aplicados), [aplicados], { cadaSegundos: 15 });
-  const [cobrando, setCobrando] = useState(null);
   const resumen = (datos ?? []).reduce((r, x) => ({ ...r, [x.estado]: (r[x.estado] ?? 0) + 1 }), {});
 
   async function accion(confirmar, fn, exito) {
@@ -41,12 +39,6 @@ export function PanelReservas() {
     if (zona) accion(null, () => reservasApi.zona(r.id, zona), `Zona ${zona.toUpperCase()} asignada a ${r.codigo}`);
   }
 
-  async function cobrar(metodo) {
-    await reservasApi.pagar(cobrando.id, metodo);
-    avisar(`Cobrado · ${cobrando.codigo}`);
-    setCobrando(null);
-    recargar({ silencioso: true });
-  }
 
   return (
     <Pagina modulo="aeropuerto" titulo="Panel de reservas" intro="Se actualiza solo cada 15 segundos."
@@ -85,7 +77,8 @@ export function PanelReservas() {
                   <td>{soles(r.monto)}</td>
                   <td><Estado valor={r.estado} /></td>
                   <td className="celda-acciones">
-                    {r.estado === 'registrado' && <button type="button" className="btn-fila" onClick={() => setCobrando(r)}>Cobrar</button>}
+                    {['pagado', 'preparado', 'finalizado'].includes(r.estado) && <Link className="btn-fila" to={`/app/comprobante/reserva/${r.id}`}>Comprobante</Link>}
+                    {r.estado === 'registrado' && <Link className="btn-fila" to={`/app/caja?buscar=${r.codigo}`}>Cobrar en caja</Link>}
                     {r.estado === 'registrado' && <Link className="btn-fila" to={`/app/aeropuerto/reservas/${r.id}/editar`}>Editar</Link>}
                     {r.estado === 'pagado' && <button type="button" className="btn-fila" onClick={() => accion(null, () => reservasApi.estado(r.id, 'preparado'), `Espacio listo para ${r.codigo}`)}>Preparar espacio</button>}
                     {!['finalizado', 'cancelado'].includes(r.estado) && <button type="button" className="btn-fila" onClick={() => asignarZona(r)}>Zona</button>}
@@ -99,7 +92,6 @@ export function PanelReservas() {
           </table>
         </div>
       </Carga>
-      {cobrando && <DialogoPago abierto permitirEfectivo concepto={`Estacionamiento ${cobrando.codigo} · ${cobrando.placa}`} monto={cobrando.monto} onPagar={cobrar} onCerrar={() => setCobrando(null)} />}
     </Pagina>
   );
 }

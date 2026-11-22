@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { mensajeDeError } from '../../api/client.js';
 import { pasajesApi } from '../../api/servicios.api.js';
 import { Carga } from '../../components/Carga.jsx';
-import { DialogoPago } from '../../components/DialogoPago.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -20,7 +19,6 @@ export function PanelPasajes() {
   const [filtros, setFiltros] = useState({ buscar: '', estado: '', fecha: '' });
   const [aplicados, setAplicados] = useState(filtros);
   const { datos, error, cargando, recargar } = useCarga(() => pasajesApi.listar(aplicados), [aplicados]);
-  const [cobrando, setCobrando] = useState(null);
 
   const resumen = (datos ?? []).reduce((r, p) => ({ ...r, [p.estado]: (r[p.estado] ?? 0) + 1 }), {});
 
@@ -35,12 +33,6 @@ export function PanelPasajes() {
     }
   }
 
-  async function cobrar(metodo) {
-    await pasajesApi.pagar(cobrando.id, metodo);
-    avisar(`Cobrado · ${cobrando.codigo}`);
-    setCobrando(null);
-    recargar({ silencioso: true });
-  }
 
   return (
     <Pagina modulo="transandino" titulo="Panel de pasajes"
@@ -77,7 +69,8 @@ export function PanelPasajes() {
                   <td>{soles(p.precio)}</td>
                   <td><Estado valor={p.estado} /></td>
                   <td className="celda-acciones">
-                    {p.estado === 'registrado' && <button type="button" className="btn-fila" onClick={() => setCobrando(p)}>Cobrar</button>}
+                    {['pagado', 'abordado'].includes(p.estado) && <Link className="btn-fila" to={`/app/comprobante/pasaje/${p.id}`}>Comprobante</Link>}
+                    {p.estado === 'registrado' && <Link className="btn-fila" to={`/app/caja?buscar=${p.codigo}`}>Cobrar en caja</Link>}
                     {p.estado === 'registrado' && <Link className="btn-fila" to={`/app/transandino/pasajes/${p.id}/editar`}>Editar</Link>}
                     {p.estado === 'pagado' && (
                       <button type="button" className="btn-fila" onClick={() => accion(null, () => pasajesApi.estado(p.id, 'abordado'), `${p.codigo}: abordó`)}>Abordó</button>
@@ -95,10 +88,6 @@ export function PanelPasajes() {
           </table>
         </div>
       </Carga>
-      {cobrando && (
-        <DialogoPago abierto permitirEfectivo concepto={`Pasaje ${cobrando.codigo} · ${cobrando.cliente}`} monto={cobrando.precio}
-          onPagar={cobrar} onCerrar={() => setCobrando(null)} />
-      )}
     </Pagina>
   );
 }

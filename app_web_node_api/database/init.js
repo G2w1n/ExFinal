@@ -12,6 +12,11 @@ const CLAVE = '123456';
 // Fechas relativas a HOY en Lima, para que siempre haya llegadas "de hoy"
 const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' });
 const dia = (desplazamiento) => sumarHoras(`${hoy} 00:00:00`, desplazamiento * 24).slice(0, 10);
+const ahora = new Date().toLocaleString('sv-SE', { timeZone: 'America/Lima' }).slice(0, 19);
+// Una compra no puede registrarse en el futuro: si la fecha calculada todavía no llega,
+// se usa un momento de los últimos 12 días (siempre el mismo para el mismo registro)
+const yaPaso = (fecha, semilla) => (fecha <= ahora ? fecha : sumarHoras(ahora, -(((semilla * 37) % 280) + 3)));
+const masTarde = (fecha, horas) => { const f = sumarHoras(fecha, horas); return f <= ahora ? f : ahora; };
 
 const PERSONAL = [
   { nombre: 'Administrador Aeropuerto', correo: 'admin@aeropuerto.pe', roles: { aeropuerto: 'administrador', transandino: 'cliente' } },
@@ -80,14 +85,15 @@ async function main() {
       const equipaje = opciones.equipaje ?? (asiento % 4 === 0 ? 25 : 15);
       const precio = cotizarPasaje({ tipo_asiento: tipo, equipaje_kg: equipaje }).total;
       const id = ++nPasaje;
-      const creado = `${sumarHoras(fechaSalida, -72)}-05`;
+      const creadoLocal = yaPaso(sumarHoras(fechaSalida, -72), id);
+      const creado = `${creadoLocal}-05`;
       await db.query(
         `INSERT INTO compras_pasajes (id, codigo, id_usuario, id_ruta, fecha_salida, hora_llegada, asiento, tipo_asiento, equipaje_kg, precio, estado, creado)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [id, codigoDe('PAS', id), idUsuario, r.id, fechaSalida, sumarHoras(fechaSalida, r.horas), asiento, tipo, equipaje, precio, hasta, creado]);
       await historial('pasaje', id, 'registrado', idUsuario, 'Compra en línea', creado);
       if (hasta !== 'registrado' && hasta !== 'cancelado') {
-        const fechaPago = `${sumarHoras(fechaSalida, -71)}-05`;
+        const fechaPago = `${masTarde(creadoLocal, 1)}-05`;
         await pagar('pasaje', id, idUsuario, precio, 'tarjeta', fechaPago);
         await historial('pasaje', id, 'pagado', idUsuario, 'Pago con tarjeta', fechaPago);
       }
@@ -100,18 +106,19 @@ async function main() {
     async function reserva(idUsuario, { idPasaje = null, tipo = 'auto', placa, nombre, entrada, horas, vip = false, hasta, zona = null }) {
       const monto = cotizarEstacionamiento({ horas, fecha_hora_entrada: entrada, tipo, zona_vip: vip }).total;
       const id = ++nReserva;
-      const creado = `${sumarHoras(entrada, -60)}-05`;
+      const creadoLocal = yaPaso(sumarHoras(entrada, -60), id + 100);
+      const creado = `${creadoLocal}-05`;
       await db.query(
         `INSERT INTO reservas_estacionamiento (id, codigo, id_usuario, id_pasaje, tipo, placa, nombre_pasajero, fecha_hora_entrada, horas, zona_vip, monto, zona, estado, creado)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [id, codigoDe('EST', id), idUsuario, idPasaje, tipo, placa, nombre, entrada, horas, vip, monto, zona, hasta, creado]);
       await historial('reserva', id, 'registrado', idUsuario, idPasaje ? 'Reserva enlazada a un pasaje' : tipo === 'bus' ? 'Espacio para bus de traslado' : 'Reserva en línea', creado);
       if (['pagado', 'preparado', 'finalizado'].includes(hasta)) {
-        const fechaPago = `${sumarHoras(entrada, -59)}-05`;
+        const fechaPago = `${masTarde(creadoLocal, 1)}-05`;
         await pagar('reserva', id, idUsuario, monto, idPasaje ? 'billetera' : 'tarjeta', fechaPago);
         await historial('reserva', id, 'pagado', idUsuario, 'Pago en línea', fechaPago);
       }
-      if (zona) await historial('reserva', id, hasta, empAero, `Zona ${zona} asignada`, `${sumarHoras(entrada, -24)}-05`);
+      if (zona) await historial('reserva', id, hasta, empAero, `Zona ${zona} asignada`, `${masTarde(creadoLocal, 2)}-05`);
       if (['preparado', 'finalizado'].includes(hasta)) await historial('reserva', id, 'preparado', empAero, 'Espacio preparado', `${sumarHoras(entrada, -1)}-05`);
       if (hasta === 'finalizado') await historial('reserva', id, 'finalizado', empAero, 'El vehículo salió', `${sumarHoras(entrada, horas)}-05`);
       return id;

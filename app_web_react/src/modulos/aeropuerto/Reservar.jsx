@@ -8,6 +8,8 @@ import { integracionesApi, reservasApi } from '../../api/servicios.api.js';
 import { DialogoPago } from '../../components/DialogoPago.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
+import { PasosViaje } from '../../components/PasosViaje.jsx';
+import { lanzarConfeti } from '../../utils/confeti.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAvisos } from '../../context/AvisosContext.jsx';
 import { dentroDe, fechaHora, soles } from '../../utils/formato.js';
@@ -44,6 +46,8 @@ export function Reservar() {
       const r = await reservasApi.crear({ ...reserva, id_pasaje: pasaje?.id_pasaje });
       setCreada(r);
       avisar(`Reserva registrada · ${r.codigo}`);
+      // Viaje completo (pasaje + estacionamiento): ¡celebración!
+      if (r.pasaje_codigo) lanzarConfeti();
     } catch (err) {
       setError(mensajeDeError(err));
     } finally {
@@ -60,8 +64,9 @@ export function Reservar() {
 
   if (creada) {
     return (
-      <Pagina modulo="aeropuerto" titulo="Reserva registrada">
-        <div className="tarjeta confirmacion">
+      <Pagina modulo="aeropuerto" titulo={creada.pasaje_codigo ? '¡Tu viaje está listo!' : 'Reserva registrada'}>
+        {creada.pasaje_codigo && <PasosViaje actual={3} />}
+        <div className="tarjeta confirmacion entrar-arriba">
           <p className="codigo-grande">{creada.codigo}</p>
           <p><strong>{creada.placa}</strong> · ingreso {fechaHora(creada.fecha_hora_entrada)} · {creada.horas} h{creada.zona_vip ? ' · VIP' : ''}</p>
           {creada.pasaje_codigo && <p className="item-enlace">Enlazada a tu pasaje {creada.pasaje_codigo}</p>}
@@ -79,6 +84,7 @@ export function Reservar() {
 
   return (
     <Pagina modulo="aeropuerto" titulo="Reservar estacionamiento" intro="A 50 metros del terminal, abierto las 24 horas.">
+      {pasaje && <PasosViaje actual={2} />}
       {pasaje && (
         <p className="banda-info">
           Pasaje <strong>{pasaje.pasaje_codigo}</strong> · {pasaje.ruta} · llegas el {fechaHora(pasaje.hora_llegada)}.

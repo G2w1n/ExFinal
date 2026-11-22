@@ -1,12 +1,13 @@
 // src/modulos/transandino/PanelPasajes.jsx
 // Panel CRUD de TransAndino (administrador y empleado): buscar, cobrar, embarcar, editar, cancelar y eliminar
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { mensajeDeError } from '../../api/client.js';
 import { pasajesApi } from '../../api/servicios.api.js';
 import { Carga } from '../../components/Carga.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
+import { Numero } from '../../components/Numero.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAvisos } from '../../context/AvisosContext.jsx';
 import { useCarga } from '../../hooks/useCarga.js';
@@ -16,7 +17,8 @@ export function PanelPasajes() {
   const { tiene } = useAuth();
   const avisar = useAvisos();
   const esAdmin = tiene('transandino', 'administrador');
-  const [filtros, setFiltros] = useState({ buscar: '', estado: '', fecha: '' });
+  const [params] = useSearchParams();
+  const [filtros, setFiltros] = useState({ buscar: params.get('buscar') ?? '', estado: '', fecha: '' });
   const [aplicados, setAplicados] = useState(filtros);
   const { datos, error, cargando, recargar } = useCarga(() => pasajesApi.listar(aplicados), [aplicados]);
 
@@ -39,7 +41,7 @@ export function PanelPasajes() {
       acciones={<Link className="btn btn-ta" to="/app/transandino/comprar">Venta presencial</Link>}>
       <div className="indicadores">
         {['registrado', 'pagado', 'abordado', 'cancelado'].map((e) => (
-          <div key={e} className="indicador"><span>{e}</span><strong>{resumen[e] ?? 0}</strong></div>
+          <div key={e} className="indicador"><span>{e}</span><strong><Numero valor={resumen[e] ?? 0} /></strong></div>
         ))}
       </div>
       <form className="filtros" onSubmit={(e) => { e.preventDefault(); setAplicados(filtros); }}>

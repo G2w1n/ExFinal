@@ -1,12 +1,13 @@
 // src/modulos/aeropuerto/PanelReservas.jsx
 // Panel CRUD del Aeropuerto (administrador y empleado): cobrar, preparar espacio, asignar zona, salida, cancelar y eliminar
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { mensajeDeError } from '../../api/client.js';
 import { reservasApi } from '../../api/servicios.api.js';
 import { Carga } from '../../components/Carga.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
+import { Numero } from '../../components/Numero.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAvisos } from '../../context/AvisosContext.jsx';
 import { useCarga } from '../../hooks/useCarga.js';
@@ -18,7 +19,8 @@ export function PanelReservas() {
   const { tiene } = useAuth();
   const avisar = useAvisos();
   const esAdmin = tiene('aeropuerto', 'administrador');
-  const [filtros, setFiltros] = useState({ buscar: '', estado: '', tipo: '', fecha: '' });
+  const [params] = useSearchParams();
+  const [filtros, setFiltros] = useState({ buscar: params.get('buscar') ?? '', estado: '', tipo: '', fecha: '' });
   const [aplicados, setAplicados] = useState(filtros);
   const { datos, error, cargando, recargar } = useCarga(() => reservasApi.listar(aplicados), [aplicados], { cadaSegundos: 15 });
   const resumen = (datos ?? []).reduce((r, x) => ({ ...r, [x.estado]: (r[x.estado] ?? 0) + 1 }), {});
@@ -44,7 +46,7 @@ export function PanelReservas() {
     <Pagina modulo="aeropuerto" titulo="Panel de reservas" intro="Se actualiza solo cada 15 segundos."
       acciones={<Link className="btn btn-aero" to="/app/aeropuerto/llegadas">Llegadas esperadas</Link>}>
       <div className="indicadores">
-        {ESTADOS.map((e) => <div key={e} className="indicador"><span>{e === 'preparado' ? 'espacio listo' : e}</span><strong>{resumen[e] ?? 0}</strong></div>)}
+        {ESTADOS.map((e) => <div key={e} className="indicador"><span>{e === 'preparado' ? 'espacio listo' : e}</span><strong><Numero valor={resumen[e] ?? 0} /></strong></div>)}
       </div>
       <form className="filtros" onSubmit={(e) => { e.preventDefault(); setAplicados(filtros); }}>
         <label className="visualmente-oculto" htmlFor="r-buscar">Buscar</label>

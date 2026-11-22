@@ -7,6 +7,7 @@ import { pasajesApi } from '../../api/servicios.api.js';
 import { DialogoPago } from '../../components/DialogoPago.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
+import { PasosViaje } from '../../components/PasosViaje.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAvisos } from '../../context/AvisosContext.jsx';
 import { fechaHora, hoyEnLima, soles } from '../../utils/formato.js';
@@ -50,7 +51,8 @@ export function ComprarPasaje() {
   if (comprado) {
     return (
       <Pagina modulo="transandino" titulo="Pasaje registrado">
-        <div className="tarjeta confirmacion">
+        {!esPersonal && <PasosViaje actual={comprado.estado === 'registrado' ? 1 : 2} />}
+        <div className="tarjeta confirmacion entrar-arriba">
           <p className="codigo-grande">{comprado.codigo}</p>
           <p><strong>{comprado.origen} → {comprado.destino}</strong> · asiento {comprado.asiento} ({comprado.tipo_asiento})</p>
           <p>Sale {fechaHora(comprado.fecha_salida)} · llega {fechaHora(comprado.hora_llegada)}</p>
@@ -75,6 +77,7 @@ export function ComprarPasaje() {
   return (
     <Pagina modulo="transandino" titulo={esPersonal ? 'Venta presencial' : 'Comprar pasaje'}
       intro={esPersonal ? 'Vende un pasaje en ventanilla a un cliente registrado.' : 'Elige tu ruta, la fecha y tu asiento.'}>
+      {!esPersonal && <PasosViaje actual={0} />}
       <form className="tarjeta formulario" onSubmit={comprar}>
         {esPersonal && (
           <label>Correo del cliente

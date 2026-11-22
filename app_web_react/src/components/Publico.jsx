@@ -2,6 +2,7 @@
 // Cabecera y pie de las páginas públicas (portada, vuelos, estacionamiento)
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { BotonTema } from './BotonTema.jsx';
 
 export function CabeceraPublica() {
   const { usuario } = useAuth();
@@ -14,6 +15,7 @@ export function CabeceraPublica() {
         <NavLink to="/estacionamiento">Estacionamiento</NavLink>
         <Link to="/#rutas">Rutas</Link>
         <Link to="/#servicios">Servicios</Link>
+        <BotonTema />
         {usuario
           ? <Link className="btn btn-claro" to="/app">Ir a mi cuenta</Link>
           : <Link className="btn btn-claro" to="/login">Iniciar sesión</Link>}

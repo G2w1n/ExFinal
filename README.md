@@ -74,6 +74,19 @@ ExFinal/
 - **Caja (ventanilla única):** apertura con fondo inicial, cobro en efectivo (con vuelto), POS o billetera, ticket, y arqueo al cerrar (si hay diferencia, pide una nota). El personal de TransAndino cobra pasajes y el del Aeropuerto, estacionamiento.
 - **Garita de salida:** lee con la cámara el QR del comprobante (o se escribe la placa o el código), dice si puede salir y registra la salida.
 
+**Animaciones e interactividad (fase 9)**
+- **Asistente del viaje:** barra de pasos *Pasaje → Pago → Estacionamiento → ¡Listo!*, con confeti al terminar.
+- **Mapa de asientos con forma de bus:** dos pisos, pasillo y chofer; el asiento elegido "salta" y el precio sube contando.
+- **El bus avanza** por la ruta en «Mis viajes», según la hora real del viaje; al llegar se enciende la "P" del estacionamiento.
+- **Garita:** la barrera se levanta y el carro sale al registrar la salida.
+- **Caja:** el ticket "sale de la impresora", y hay atajos de teclado (F2 buscar, F4 cobrar el primero).
+- **Tablero tipo Trello** (`/app/aeropuerto/tablero`): el personal arrastra cada reserva a su siguiente estado.
+- **Campanita de notificaciones** que se actualiza sola (`GET /api/notificaciones`) y **búsqueda global** con Ctrl + K.
+- **Gráfico de ingresos** de 14 días que crece al aparecer (TransAndino y Aeropuerto), y contadores que suben.
+- **Seguir un vuelo ☆:** cuenta regresiva y aviso si cambia la puerta o el estado.
+- **Modo oscuro**, aparición de secciones al bajar, esqueletos de carga y transición entre páginas.
+- Si el sistema pide **menos movimiento**, las animaciones se desactivan.
+
 **CRM (trazabilidad, como en la guía de Delicia)**
 - La tabla `estados_historial` guarda **cada cambio de estado, quién lo hizo y cuándo**.
 - La **ficha del cliente** junta sus pasajes, reservas, pagos, línea de tiempo y notas de seguimiento.
@@ -171,6 +184,7 @@ Pruebas de las reglas de precio: `cd app_web_node_api && npm test`.
 | `GET /api/reservas/ocupacion` | público (mapa del estacionamiento) |
 | `GET /api/pasajes/:id/comprobante` · `GET /api/reservas/:id/comprobante` | dueño o personal de esa app |
 | `GET /api/caja` · `POST /api/caja/abrir` · `GET /api/caja/pendientes` · `POST /api/caja/cobrar` · `POST /api/caja/cerrar` | personal (cada uno cobra lo de su app) |
+| `GET /api/notificaciones` | cualquier usuario con sesión (cada uno ve lo suyo) |
 | `GET /api/crm/clientes` · `GET /api/crm/clientes/:id` · `POST /:id/notas` · `GET /api/crm/indicadores` | personal de cualquiera de las dos apps |
 
 Todas las respuestas de error tienen la forma `{ "mensaje": "…" }`.

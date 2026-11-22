@@ -6,6 +6,10 @@ import { auth } from '../middlewares/auth.js';
 import { requirePersonal } from '../middlewares/requireRol.js';
 import { asyncHandler as h } from '../utils/asyncHandler.js';
 
+// Notificaciones: cualquier usuario con sesión (cada uno ve lo suyo)
+export const notificacionesRoutes = Router();
+notificacionesRoutes.get('/', auth, h(c.notificaciones));
+
 const r = Router();
 r.use(auth, requirePersonal);
 r.get('/indicadores', h(c.indicadores));

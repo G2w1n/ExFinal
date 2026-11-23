@@ -1,6 +1,8 @@
 // src/modulos/aeropuerto/Reservar.jsx
 // Registro del Aeropuerto: reservar estacionamiento.
 // Integración 1: si llega con ?pasaje=ID, los datos del pasaje de TransAndino vienen precargados.
+import { FotoEscena } from '../../components/FotoEscena.jsx';
+import { ESCENA } from '../../hooks/useFotos.js';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { mensajeDeError } from '../../api/client.js';
@@ -86,6 +88,7 @@ export function Reservar() {
 
   return (
     <Pagina modulo="aeropuerto" titulo="Reservar estacionamiento" intro="A 50 metros del terminal, abierto las 24 horas.">
+      <FotoEscena id={ESCENA.auto} className="foto-banner" titulo="Tu auto, seguro mientras viajas" texto="Vigilancia las 24 horas · zona techada VIP" />
       {pasaje && <PasosViaje actual={2} />}
       {pasaje && (
         <p className="banda-info">

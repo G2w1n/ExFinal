@@ -1,6 +1,8 @@
 // src/pages/Estacionamiento.jsx
 // Mapa de espacios libres y ocupados (traído del Parcial): las reservas reales de la base de datos
 // más los vehículos que llegan sin reserva (simulado). Tarifas y calculadora con el precio del servidor.
+import { useFondoEscena } from '../components/FotoEscena.jsx';
+import { ESCENA } from '../hooks/useFotos.js';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { reservasApi } from '../api/servicios.api.js';
@@ -66,12 +68,14 @@ export function Estacionamiento() {
     const libres = espacios.filter((e) => e === 'libre').length;
     return { ...z, capacidad, espacios, libres, llegan: datos?.reservas?.[z.clave]?.llegan ?? 0 };
   }), [datos, momento]);
+  const fondo = useFondoEscena(ESCENA.estacionamiento);
 
   return (
     <div className="publico">
       <CabeceraPublica />
       <main id="contenido">
-        <section className="portada portada-corta">
+        <section className={`portada portada-corta ${fondo.clase}`} style={fondo.estilo}>
+          {fondo.credito}
           <div className="portada-texto">
             <p className="kicker">Aeropuerto Internacional del Cusco · a 50 m del terminal</p>
             <h1>Estacionamiento</h1>

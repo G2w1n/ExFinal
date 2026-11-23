@@ -132,13 +132,14 @@ CREATE TABLE notas_cliente (
 );
 
 -- ---------- Imágenes (fase 11): se guardan dentro de la base, ya achicadas en el navegador ----------
--- tipo 'perfil' -> id_entidad = usuarios.id · tipo 'destino' -> id_entidad = rutas.id
+-- tipo 'perfil' -> usuarios.id · 'destino' -> rutas.id · 'escena' -> fotos de la página (aeropuerto, estacionamiento, paisajes…)
 CREATE TABLE imagenes (
-  tipo         TEXT NOT NULL CHECK (tipo IN ('perfil', 'destino')),
+  tipo         TEXT NOT NULL CONSTRAINT imagenes_tipo_check CHECK (tipo IN ('perfil', 'destino', 'escena')),
   id_entidad   INTEGER NOT NULL,
   mime         TEXT NOT NULL CHECK (mime IN ('image/webp', 'image/jpeg', 'image/png')),
   datos        BYTEA NOT NULL CHECK (octet_length(datos) <= 307200),
   id_autor     INTEGER REFERENCES usuarios (id) ON DELETE SET NULL,
+  credito      TEXT CHECK (char_length(credito) <= 300),  -- autor y licencia de las fotos de ejemplo
   actualizado  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   PRIMARY KEY (tipo, id_entidad)
 );

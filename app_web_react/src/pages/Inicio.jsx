@@ -10,6 +10,30 @@ import { Tablero } from '../vuelos/Tablero.jsx';
 import { Revelar } from '../components/Revelar.jsx';
 import { Animacion } from '../components/Animacion.jsx';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
+import { Credito, useFondoEscena } from '../components/FotoEscena.jsx';
+import { PAISAJES, useFotos } from '../hooks/useFotos.js';
+
+// Galería de paisajes (fotos de la página guardadas en Neon); si no hay fotos, no aparece
+function Galeria() {
+  const { buscar, escenas } = useFotos();
+  const fotos = PAISAJES.map((id) => ({ id, nombre: escenas[id], ...buscar('escena', id) })).filter((f) => f.url);
+  if (!fotos.length) return null;
+  return (
+    <Revelar as="section" id="paisajes" className="bloque">
+      <h2>Paisajes que te esperan</h2>
+      <ul className="galeria">
+        {fotos.map((f, i) => (
+          <motion.li key={f.id} className={i === 0 ? 'galeria-grande' : ''} whileHover={{ y: -4 }} transition={{ type: 'spring', stiffness: 300, damping: 22 }}>
+            <img src={f.url} alt={f.nombre} loading="lazy" width="960" height="540" />
+            <span className="galeria-nombre">{f.nombre}</span>
+            <Credito texto={f.credito} />
+          </motion.li>
+        ))}
+      </ul>
+    </Revelar>
+  );
+}
 
 const PASOS = [
   ['1', 'Compra tu pasaje', 'Elige la ruta a Cusco, tu asiento y tu equipaje con TransAndino.'],
@@ -23,6 +47,7 @@ export function Inicio() {
   const { hash } = useLocation();
   const { t } = useTranslation();
   const [rutas, setRutas] = useState([]);
+  const fondo = useFondoEscena(PAISAJES[0]);
   const [busqueda, setBusqueda] = useState({ id_ruta: '', fecha: hoyEnLima() });
 
   useEffect(() => {
@@ -49,7 +74,8 @@ export function Inicio() {
       <CabeceraPublica />
 
       <main id="contenido">
-        <section className="portada">
+        <section className={`portada ${fondo.clase}`} style={fondo.estilo}>
+          {fondo.credito}
           <Animacion nombre="avion" bucle className="portada-avion" />
           <div className="portada-texto">
             <p className="kicker">TransAndino Perú + Aeropuerto Internacional del Cusco</p>
@@ -75,6 +101,8 @@ export function Inicio() {
             {PASOS.map(([n, t, d]) => <li key={n}><span className="paso-n" aria-hidden="true">{n}</span><h3>{t}</h3><p>{d}</p></li>)}
           </ol>
         </Revelar>
+
+        <Galeria />
 
         <Revelar as="section" className="bloque dos-apps">
           <article className="tarjeta-app app-ta">

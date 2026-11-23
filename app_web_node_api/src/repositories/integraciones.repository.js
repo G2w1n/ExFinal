@@ -5,7 +5,8 @@ import { pool } from '../config/db.js';
 // Integración 1: «Mis viajes» = pasajes del usuario con su reserva enlazada, más reservas sin pasaje
 export async function misViajes(idUsuario) {
   const { rows: pasajes } = await pool.query(
-    `SELECT p.id, p.codigo, p.estado, p.fecha_salida, p.hora_llegada, p.asiento, p.precio, r.origen, r.destino,
+    `SELECT p.id, p.codigo, p.estado, p.fecha_salida, p.hora_llegada, p.asiento, p.precio, r.origen, r.destino, p.id_ruta,
+            (SELECT (EXTRACT(EPOCH FROM i.actualizado) * 1000)::bigint FROM imagenes i WHERE i.tipo = 'destino' AND i.id_entidad = p.id_ruta) AS imagen_v,
             e.id AS reserva_id, e.codigo AS reserva_codigo, e.estado AS reserva_estado, e.placa, e.fecha_hora_entrada, e.monto AS reserva_monto
        FROM compras_pasajes p
        JOIN rutas r ON r.id = p.id_ruta

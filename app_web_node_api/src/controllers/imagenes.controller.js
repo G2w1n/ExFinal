@@ -8,7 +8,7 @@ export async function ver(req, res) {
   res.set({
     'Content-Type': img.mime,
     ETag: etiqueta,
-    'Cache-Control': `${req.params.tipo === 'destino' ? 'public' : 'private'}, max-age=${req.query.v ? 31536000 : 60}`,
+    'Cache-Control': `${req.params.tipo === 'perfil' ? 'private' : 'public'}, max-age=${req.query.v ? 31536000 : 60}`,
     'Cross-Origin-Resource-Policy': 'cross-origin',
     'X-Content-Type-Options': 'nosniff',
   });
@@ -18,3 +18,5 @@ export async function ver(req, res) {
 
 export const subir = async (req, res) => res.status(201).json(await s.subir(req.usuario, req.params.tipo, req.params.id, req.body));
 export const borrar = async (req, res) => { await s.borrar(req.usuario, req.params.tipo, req.params.id); res.status(204).end(); };
+export const catalogo = async (_req, res) => res.json(await s.catalogo());
+export const ejemplos = async (req, res) => res.status(201).json(await s.cargarEjemplos(req.usuario, { reemplazar: req.body?.reemplazar === true }));

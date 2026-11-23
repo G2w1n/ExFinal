@@ -1,5 +1,7 @@
 // src/integraciones/EspacioBuses.jsx
 // Integración 2 (HU-15.2): el administrador de TransAndino reserva espacio para sus buses con su misma cuenta
+import { FotoEscena } from '../components/FotoEscena.jsx';
+import { ESCENA } from '../hooks/useFotos.js';
 import { useState } from 'react';
 import { mensajeDeError } from '../api/client.js';
 import { integracionesApi } from '../api/servicios.api.js';
@@ -36,6 +38,7 @@ export function EspacioBuses() {
 
   return (
     <Pagina modulo="aeropuerto" titulo="Espacio para buses" intro="Como cliente del aeropuerto, TransAndino reserva espacio para sus buses de traslado. El empleado del aeropuerto asigna la zona.">
+      <FotoEscena id={ESCENA.bus} className="foto-banner" titulo="Buses de TransAndino" texto="Espacio reservado junto al terminal" />
       <form className="tarjeta formulario" onSubmit={guardar}>
         <div className="fila-2">
           <label>Empresa <span className="precargado">precargado</span><input className="campo-precargado" value="TransAndino Perú" readOnly /></label>

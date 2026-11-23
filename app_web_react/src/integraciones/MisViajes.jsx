@@ -1,6 +1,9 @@
 // src/integraciones/MisViajes.jsx
 // Integración 1 (HU-15.1 · HU-15.4): pasaje + estacionamiento juntos. Se actualiza solo cada 10 segundos.
+import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { integracionesApi } from '../api/servicios.api.js';
 import { Carga } from '../components/Carga.jsx';
 import { Estado } from '../components/Estado.jsx';
@@ -9,16 +12,34 @@ import { useCarga } from '../hooks/useCarga.js';
 import { fechaHora, puedeReservarEstacionamiento, soles } from '../utils/formato.js';
 import { RutaBus } from './RutaBus.jsx';
 
+const MapaViajes = lazy(() => import('../mapa/MapaViajes.jsx'));
+
 export function MisViajes() {
   const { datos, error, cargando, recargar } = useCarga(() => integracionesApi.misViajes(), [], { cadaSegundos: 10 });
   const vacio = datos && datos.pasajes.length === 0 && datos.reservasSinPasaje.length === 0;
+  const [enMapa, setEnMapa] = useState(null);
+  const { t } = useTranslation();
   return (
-    <Pagina modulo="viaje" titulo="Mis viajes" intro="Tu pasaje de TransAndino y tu estacionamiento del aeropuerto, en un solo lugar. Los estados se actualizan solos.">
+    <Pagina modulo="viaje" titulo={t('Mis viajes')} intro={t('Tu pasaje de TransAndino y tu estacionamiento del aeropuerto, en un solo lugar. Los estados se actualizan solos.')}>
       <Carga cargando={cargando} error={error} reintentar={recargar} vacio={vacio} textoVacio="Todavía no tienes viajes. Empieza comprando tu pasaje.">
         <ul className="lista-viajes">
-          {datos?.pasajes.map((p) => (
-            <li key={p.id} className="viaje">
+          {datos?.pasajes.map((p, i) => (
+            <motion.li key={p.id} className="viaje" layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}>
               <RutaBus pasaje={p} conEstacionamiento={Boolean(p.reserva_codigo)} />
+              <div className="viaje-mapa-boton">
+                <button type="button" className="btn-fila" aria-expanded={enMapa === p.id} onClick={() => setEnMapa(enMapa === p.id ? null : p.id)}>
+                  {enMapa === p.id ? t('Ocultar mapa') : `🗺 ${t('Ver en el mapa')}`}
+                </button>
+              </div>
+              <AnimatePresence>
+                {enMapa === p.id && (
+                  <motion.div className="viaje-mapa" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+                    <Suspense fallback={<div className="esqueleto-mapa" />}>
+                      <MapaViajes viajes={[{ ...p, placa: p.reserva_codigo ? p.placa : null }]} />
+                    </Suspense>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <div className="viaje-parte parte-ta">
                 <p className="etiqueta-app">TransAndino · {p.codigo}</p>
                 <h2>{p.origen} → {p.destino}</h2>
@@ -43,7 +64,7 @@ export function MisViajes() {
                   </>
                 ) : <p className="nota">{p.estado === 'cancelado' ? 'Pasaje cancelado.' : p.destino !== 'Cusco' ? 'Este viaje no llega a Cusco.' : 'Este viaje ya terminó.'}</p>}
               </div>
-            </li>
+            </motion.li>
           ))}
         </ul>
         {datos?.reservasSinPasaje.length > 0 && (

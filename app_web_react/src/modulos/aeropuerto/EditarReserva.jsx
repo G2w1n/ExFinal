@@ -24,7 +24,7 @@ export function EditarReserva() {
     const r = await reservasApi.detalle(id);
     setReserva({ placa: r.placa, nombre_pasajero: r.nombre_pasajero, fecha_hora_entrada: aInputFecha(r.fecha_hora_entrada), horas: r.horas, zona_vip: r.zona_vip });
     return r;
-  }, [id]);
+  }, [id], { enVivo: false });
   const volver = tiene('aeropuerto', 'administrador', 'empleado') ? '/app/aeropuerto/panel' : '/app/aeropuerto/mis-reservas';
 
   async function guardar(e) {

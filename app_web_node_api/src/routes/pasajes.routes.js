@@ -11,6 +11,7 @@ const r = Router();
 r.get('/rutas', h(c.rutas));
 r.post('/cotizar', h(c.cotizar));
 r.get('/asientos', h(c.asientos));
+r.get('/disponibilidad', h(c.disponibilidad));
 r.use(auth);
 r.post('/', h(c.comprar));
 r.get('/mios', h(c.mios));

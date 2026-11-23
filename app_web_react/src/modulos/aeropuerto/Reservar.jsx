@@ -9,6 +9,7 @@ import { DialogoPago } from '../../components/DialogoPago.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
 import { PasosViaje } from '../../components/PasosViaje.jsx';
+import { Animacion } from '../../components/Animacion.jsx';
 import { lanzarConfeti } from '../../utils/confeti.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAvisos } from '../../context/AvisosContext.jsx';
@@ -67,6 +68,7 @@ export function Reservar() {
       <Pagina modulo="aeropuerto" titulo={creada.pasaje_codigo ? '¡Tu viaje está listo!' : 'Reserva registrada'}>
         {creada.pasaje_codigo && <PasosViaje actual={3} />}
         <div className="tarjeta confirmacion entrar-arriba">
+          {(creada.pasaje_codigo || creada.estado === 'pagado') && <Animacion nombre="check" className="lottie-check" etiqueta={creada.estado === 'pagado' ? 'Pago aprobado' : 'Viaje listo'} />}
           <p className="codigo-grande">{creada.codigo}</p>
           <p><strong>{creada.placa}</strong> · ingreso {fechaHora(creada.fecha_hora_entrada)} · {creada.horas} h{creada.zona_vip ? ' · VIP' : ''}</p>
           {creada.pasaje_codigo && <p className="item-enlace">Enlazada a tu pasaje {creada.pasaje_codigo}</p>}

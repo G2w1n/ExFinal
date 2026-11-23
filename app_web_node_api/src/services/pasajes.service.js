@@ -9,6 +9,7 @@ import { AppError } from '../utils/AppError.js';
 import { cotizarPasaje, sumarHoras, tipoDeAsiento } from '../utils/tarifas.js';
 import { FECHA, numero } from '../utils/validaciones.js';
 import { buscarPorCorreo } from '../repositories/usuarios.repository.js';
+import { avisarPasaje } from '../config/tiempoReal.js';
 
 const METODOS = ['tarjeta', 'billetera', 'efectivo'];
 // Estados en orden: de cada estado, a cuáles se puede pasar
@@ -41,6 +42,13 @@ async function armarViaje(body, excepto = 0) {
   };
 }
 
+export async function disponibilidad({ id_ruta, desde, dias = 90 }) {
+  const ruta = await repo.ruta(numero(id_ruta, 'La ruta', { min: 1, entero: true }));
+  if (!ruta) throw new AppError(400, 'Esa ruta no existe.');
+  const inicio = FECHA.test(String(desde ?? '')) ? desde : hoyEnLima();
+  return { total: 40, dias: await repo.vendidosPorDia(ruta.id, inicio, numero(dias, 'Los días', { min: 1, max: 180, entero: true })) };
+}
+
 export async function asientos({ id_ruta, fecha }) {
   const ruta = await repo.ruta(numero(id_ruta, 'La ruta', { min: 1, entero: true }));
   if (!ruta || !FECHA.test(String(fecha ?? ''))) throw new AppError(400, 'Elige la ruta y la fecha.');
@@ -65,7 +73,9 @@ export async function comprar(usuario, body) {
       nota: body.correo_cliente ? 'Venta presencial' : 'Compra en línea' });
     return nuevo;
   });
-  return repo.porId(id);
+  const p = await repo.porId(id);
+  avisarPasaje(p, 'comprado');
+  return p;
 }
 
 // El dueño o el personal de TransAndino
@@ -105,11 +115,13 @@ export async function editar(usuario, id, body) {
     await repo.actualizar(db, id, viaje);
     await historial.registrar(db, { entidad: 'pasaje', id, estado: 'registrado', usuarioId: usuario.id, nota: 'Pasaje editado' });
   });
-  return repo.porId(id);
+  const actualizado = await repo.porId(id);
+  avisarPasaje(actualizado);
+  return actualizado;
 }
 
 async function pasarA(usuario, id, nuevo, nota, alPasar) {
-  return enTransaccion(async (db) => {
+  const extra = await enTransaccion(async (db) => {
     const p = await repo.porId(id, db, true); // FOR UPDATE: nadie más lo cambia mientras tanto
     if (!p) throw new AppError(404, 'Ese pasaje no existe.');
     if (!SIGUIENTES[p.estado].includes(nuevo)) throw new AppError(409, `Un pasaje ${p.estado} no puede pasar a ${nuevo}.`);
@@ -118,6 +130,8 @@ async function pasarA(usuario, id, nuevo, nota, alPasar) {
     await historial.registrar(db, { entidad: 'pasaje', id, estado: nuevo, usuarioId: usuario.id, nota });
     return extra;
   });
+  avisarPasaje(await repo.porId(id));
+  return extra;
 }
 
 export async function pagar(usuario, id, { metodo }) {
@@ -150,4 +164,5 @@ export async function eliminar(usuario, id) {
   const { rows } = await pool.query(`SELECT 1 FROM reservas_estacionamiento WHERE id_pasaje = $1`, [id]);
   if (rows.length) throw new AppError(409, 'El pasaje tiene una reserva de estacionamiento enlazada.');
   await enTransaccion((db) => repo.eliminar(db, id));
+  avisarPasaje(p, 'eliminado');
 }

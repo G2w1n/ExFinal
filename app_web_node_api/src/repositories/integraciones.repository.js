@@ -21,7 +21,7 @@ export async function misViajes(idUsuario) {
 export async function llegadas(fecha) {
   const { rows } = await pool.query(
     `SELECT e.id, e.codigo, e.placa, e.estado, e.zona_vip, e.fecha_hora_entrada, e.horas, u.nombre AS cliente,
-            p.codigo AS pasaje_codigo, p.hora_llegada, r.origen, p.estado AS pasaje_estado
+            p.codigo AS pasaje_codigo, p.fecha_salida, p.hora_llegada, r.origen, r.destino, p.estado AS pasaje_estado
        FROM reservas_estacionamiento e
        JOIN compras_pasajes p ON p.id = e.id_pasaje
        JOIN rutas r ON r.id = p.id_ruta

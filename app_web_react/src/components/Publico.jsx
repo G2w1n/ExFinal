@@ -2,23 +2,27 @@
 // Cabecera y pie de las páginas públicas (portada, vuelos, estacionamiento)
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useTranslation } from 'react-i18next';
 import { BotonTema } from './BotonTema.jsx';
+import { SelectorIdioma } from './SelectorIdioma.jsx';
 
 export function CabeceraPublica() {
   const { usuario } = useAuth();
+  const { t } = useTranslation();
   return (
     <header className="barra barra-publica">
       <a className="saltar" href="#contenido">Saltar al contenido</a>
       <Link to="/" className="marca">Viaje a Cusco <small>Grupo 15</small></Link>
       <nav aria-label="Principal">
-        <NavLink to="/vuelos">Vuelos</NavLink>
-        <NavLink to="/estacionamiento">Estacionamiento</NavLink>
-        <Link to="/#rutas">Rutas</Link>
-        <Link to="/#servicios">Servicios</Link>
+        <NavLink to="/vuelos">{t('Vuelos')}</NavLink>
+        <NavLink to="/estacionamiento">{t('Estacionamiento')}</NavLink>
+        <Link to="/#rutas">{t('Rutas')}</Link>
+        <Link to="/#servicios">{t('Servicios')}</Link>
+        <SelectorIdioma />
         <BotonTema />
         {usuario
-          ? <Link className="btn btn-claro" to="/app">Ir a mi cuenta</Link>
-          : <Link className="btn btn-claro" to="/login">Iniciar sesión</Link>}
+          ? <Link className="btn btn-claro" to="/app">{t('Ir a mi cuenta')}</Link>
+          : <Link className="btn btn-claro" to="/login">{t('Iniciar sesión')}</Link>}
       </nav>
     </header>
   );

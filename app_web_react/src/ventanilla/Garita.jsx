@@ -2,7 +2,7 @@
 // Garita de salida del estacionamiento (traída del Parcial): lee con la cámara el QR del comprobante
 // (o se escribe la placa o el código), dice si puede salir y registra la salida.
 import { useEffect, useRef, useState } from 'react';
-import jsQR from 'jsqr';
+import { Html5Qrcode } from 'html5-qrcode';
 import { Link } from 'react-router-dom';
 import { mensajeDeError } from '../api/client.js';
 import { reservasApi } from '../api/servicios.api.js';
@@ -32,9 +32,7 @@ function veredicto(r) {
 
 export function Garita() {
   const avisar = useAvisos();
-  const video = useRef(null);
-  const lienzo = useRef(null);
-  const flujo = useRef(null);
+  const lector = useRef(null);
   const ultimo = useRef({ texto: '', momento: 0 });
   const [camara, setCamara] = useState(false);
   const [criterio, setCriterio] = useState('');
@@ -67,40 +65,21 @@ export function Garita() {
     } catch (err) { avisar(mensajeDeError(err), 'error'); }
   }
 
-  // Cámara: busca un QR en cada cuadro; el mismo código no se repite durante 4 segundos
+  // Cámara con html5-qrcode (elige la cámara trasera del celular); el mismo código no se repite en 4 segundos
   useEffect(() => {
     if (!camara) return undefined;
-    let activo = true;
-    (async () => {
-      try {
-        flujo.current = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-        video.current.srcObject = flujo.current;
-        await video.current.play();
-        const ctx = lienzo.current.getContext('2d', { willReadFrequently: true });
-        const escanear = () => {
-          if (!activo) return;
-          const v = video.current;
-          if (v.readyState === v.HAVE_ENOUGH_DATA) {
-            const ancho = Math.min(640, v.videoWidth);
-            const alto = Math.round((v.videoHeight / v.videoWidth) * ancho);
-            lienzo.current.width = ancho; lienzo.current.height = alto;
-            ctx.drawImage(v, 0, 0, ancho, alto);
-            const qr = jsQR(ctx.getImageData(0, 0, ancho, alto).data, ancho, alto, { inversionAttempts: 'dontInvert' });
-            if (qr?.data && (qr.data !== ultimo.current.texto || Date.now() - ultimo.current.momento > 4000)) {
-              ultimo.current = { texto: qr.data, momento: Date.now() };
-              navigator.vibrate?.(120);
-              consultar(qr.data);
-            }
-          }
-          requestAnimationFrame(escanear);
-        };
-        requestAnimationFrame(escanear);
-      } catch (err) {
-        avisar(err.name === 'NotAllowedError' ? 'No se dio permiso para usar la cámara. Escribe la placa o el código.' : 'No se pudo encender la cámara.', 'error');
-        setCamara(false);
-      }
-    })();
-    return () => { activo = false; flujo.current?.getTracks().forEach((t) => t.stop()); flujo.current = null; };
+    const qr = new Html5Qrcode('lector-qr', { verbose: false });
+    lector.current = qr;
+    qr.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 220, height: 220 } }, (texto) => {
+      if (texto === ultimo.current.texto && Date.now() - ultimo.current.momento < 4000) return;
+      ultimo.current = { texto, momento: Date.now() };
+      navigator.vibrate?.(120);
+      consultar(texto);
+    }, () => {}).catch((err) => {
+      avisar(String(err).includes('NotAllowed') ? 'No se dio permiso para usar la cámara. Escribe la placa o el código.' : 'No se pudo encender la cámara.', 'error');
+      setCamara(false);
+    });
+    return () => { qr.isScanning ? qr.stop().then(() => qr.clear()).catch(() => {}) : qr.clear(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camara]);
 
@@ -109,9 +88,8 @@ export function Garita() {
       <div className="garita-grid">
         <section className="tarjeta">
           <div className={`camara ${camara ? 'activa' : ''}`}>
-            <video ref={video} muted playsInline aria-label="Vista de la cámara" />
+            <div id="lector-qr" aria-label="Vista de la cámara" />
             {!camara && <p>La cámara está apagada</p>}
-            <canvas ref={lienzo} hidden />
           </div>
           <button type="button" className="btn btn-ancho" onClick={() => setCamara(!camara)}>{camara ? 'Apagar cámara' : 'Encender cámara'}</button>
           <form className="filtros" onSubmit={(e) => { e.preventDefault(); consultar(criterio); }}>

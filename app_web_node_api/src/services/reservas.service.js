@@ -9,6 +9,7 @@ import { tieneRol } from '../middlewares/requireRol.js';
 import { AppError } from '../utils/AppError.js';
 import { cotizarEstacionamiento } from '../utils/tarifas.js';
 import { fechaHora, numero, placa, texto } from '../utils/validaciones.js';
+import { avisarReserva } from '../config/tiempoReal.js';
 
 const METODOS = ['tarjeta', 'billetera', 'efectivo'];
 const SIGUIENTES = {
@@ -43,7 +44,9 @@ async function guardarNueva(usuario, datos, nota) {
     await historial.registrar(db, { entidad: 'reserva', id: nuevo, estado: 'registrado', usuarioId: usuario.id, nota });
     return nuevo;
   });
-  return repo.porId(id);
+  const r = await repo.porId(id);
+  avisarReserva(r, 'creada');
+  return r;
 }
 
 // Reserva de auto del cliente; si viene id_pasaje, se enlaza con su pasaje de TransAndino
@@ -104,11 +107,13 @@ export async function editar(usuario, id, body) {
     await repo.actualizar(db, id, datos);
     await historial.registrar(db, { entidad: 'reserva', id, estado: 'registrado', usuarioId: usuario.id, nota: 'Reserva editada' });
   });
-  return repo.porId(id);
+  const r = await repo.porId(id);
+  avisarReserva(r);
+  return r;
 }
 
 async function pasarA(usuario, id, nuevo, nota, alPasar) {
-  return enTransaccion(async (db) => {
+  const extra = await enTransaccion(async (db) => {
     const e = await repo.porId(id, db, true);
     if (!e) throw new AppError(404, 'Esa reserva no existe.');
     if (!SIGUIENTES[e.estado].includes(nuevo)) throw new AppError(409, `Una reserva ${e.estado} no puede pasar a ${nuevo}.`);
@@ -117,6 +122,8 @@ async function pasarA(usuario, id, nuevo, nota, alPasar) {
     await historial.registrar(db, { entidad: 'reserva', id, estado: nuevo, usuarioId: usuario.id, nota });
     return extra;
   });
+  avisarReserva(await repo.porId(id));
+  return extra;
 }
 
 export async function pagar(usuario, id, { metodo }) {
@@ -151,7 +158,9 @@ export async function asignarZona(usuario, id, { zona }) {
     await repo.asignarZona(db, id, z);
     await historial.registrar(db, { entidad: 'reserva', id, estado: e.estado, usuarioId: usuario.id, nota: `Zona ${z} asignada` });
   });
-  return repo.porId(id);
+  const r = await repo.porId(id);
+  avisarReserva(r, `zona ${z}`);
+  return r;
 }
 
 export async function eliminar(_usuario, id) {
@@ -159,4 +168,5 @@ export async function eliminar(_usuario, id) {
   if (!e) throw new AppError(404, 'Esa reserva no existe.');
   if (!['registrado', 'cancelado'].includes(e.estado)) throw new AppError(409, 'Solo se eliminan reservas sin pagar o canceladas.');
   await enTransaccion((db) => repo.eliminar(db, id));
+  avisarReserva(e, 'eliminada');
 }

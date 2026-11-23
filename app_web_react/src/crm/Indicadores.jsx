@@ -1,6 +1,6 @@
 // src/crm/Indicadores.jsx
-// CRM: indicadores de las dos apps juntas, con contadores y un gráfico de ingresos que crece al aparecer
-import { useState } from 'react';
+// CRM: indicadores de las dos apps juntas con gráficos de Recharts (animados, con tooltip y leyenda)
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { crmApi } from '../api/servicios.api.js';
 import { Carga } from '../components/Carga.jsx';
 import { Numero } from '../components/Numero.jsx';
@@ -8,54 +8,85 @@ import { Pagina } from '../components/Pagina.jsx';
 import { useCarga } from '../hooks/useCarga.js';
 import { soles } from '../utils/formato.js';
 
+const COLORES = { ta: '#1f6b44', aero: '#1c5fa8' };
+const METODOS = { tarjeta: 'Tarjeta', billetera: 'Billetera', efectivo: 'Efectivo', pos: 'POS' };
+const COLORES_METODO = ['#1c5fa8', '#f2994a', '#1f6b44', '#8a4b12'];
 const dia = (texto) => `${texto.slice(8, 10)}/${texto.slice(5, 7)}`;
 
+function Globo({ active, payload, label }) {
+  if (!active || !payload?.length) return null;
+  const total = payload.reduce((s, p) => s + Number(p.value), 0);
+  return (
+    <div className="globo-grafico">
+      <strong>{label}</strong>
+      {payload.map((p) => <p key={p.dataKey} style={{ color: p.color }}>{p.name}: {soles(p.value)}</p>)}
+      {payload.length > 1 && <p>Total: {soles(total)}</p>}
+    </div>
+  );
+}
+
 export function Indicadores() {
-  const { datos: d, error, cargando, recargar } = useCarga(() => crmApi.indicadores(), [], { cadaSegundos: 30 });
-  const [foco, setFoco] = useState(null);
+  const { datos: d, error, cargando, recargar } = useCarga(() => crmApi.indicadores(), [], { cadaSegundos: 60 });
   const total = d ? Number(d.ingresos_pasajes) + Number(d.ingresos_estacionamiento) : 0;
-  const pct = (n) => (total ? Math.round((Number(n) / total) * 100) : 0);
-  const max = Math.max(1, ...(d?.serie ?? []).map((x) => Number(x.pasajes) + Number(x.reservas)));
+  const serie = (d?.serie ?? []).map((x) => ({ dia: dia(x.dia), TransAndino: Number(x.pasajes), Aeropuerto: Number(x.reservas) }));
+  const metodos = (d?.por_metodo ?? []).map((m) => ({ nombre: METODOS[m.metodo] ?? m.metodo, total: Number(m.total), operaciones: m.operaciones }));
+  const porApp = [{ nombre: 'TransAndino', total: Number(d?.ingresos_pasajes ?? 0) }, { nombre: 'Aeropuerto', total: Number(d?.ingresos_estacionamiento ?? 0) }];
 
   return (
-    <Pagina modulo="crm" titulo="Indicadores" intro="Resumen del negocio integrado: TransAndino + Aeropuerto.">
+    <Pagina modulo="crm" titulo="Indicadores" intro="Resumen del negocio integrado: TransAndino + Aeropuerto. Se actualiza en vivo.">
       <Carga cargando={cargando} error={error} reintentar={recargar}>
         {d && (
           <>
             <div className="indicadores grandes">
+              <div className="indicador"><span>Ingresos totales</span><strong><Numero valor={total} formato={soles} /></strong></div>
               <div className="indicador"><span>Clientes</span><strong><Numero valor={d.clientes} /></strong></div>
               <div className="indicador"><span>Clientes frecuentes</span><strong><Numero valor={d.frecuentes} /></strong></div>
-              <div className="indicador"><span>Viajes integrados (pasaje + estacionamiento)</span><strong><Numero valor={d.viajes_integrados} /></strong></div>
+              <div className="indicador"><span>Viajes integrados</span><strong><Numero valor={d.viajes_integrados} /></strong></div>
               <div className="indicador"><span>Pendientes de pago</span><strong><Numero valor={d.pendientes_pago} /></strong></div>
             </div>
+
             <section className="tarjeta">
-              <div className="cabecera-seccion">
-                <h2>Ingresos de los últimos 14 días</h2>
-                <ul className="leyenda-grafico"><li><span className="muestra-g ta" /> TransAndino</li><li><span className="muestra-g aero" /> Aeropuerto</li></ul>
-              </div>
-              <div className="grafico" role="img" aria-label={`Ingresos por día: ${d.serie.map((x) => `${dia(x.dia)} ${soles(Number(x.pasajes) + Number(x.reservas))}`).join(', ')}`}>
-                {d.serie.map((x, i) => {
-                  const suma = Number(x.pasajes) + Number(x.reservas);
-                  return (
-                    <div key={x.dia} className={`grafico-col ${foco === i ? 'foco' : ''}`} onMouseEnter={() => setFoco(i)} onMouseLeave={() => setFoco(null)}>
-                      {foco === i && <span className="grafico-tip">{dia(x.dia)} · {soles(suma)}<br />TA {soles(x.pasajes)} · Aero {soles(x.reservas)}</span>}
-                      <div className="grafico-barra" style={{ height: `${(suma / max) * 100}%`, animationDelay: `${i * 40}ms` }}>
-                        <span className="seg-aero" style={{ height: suma ? `${(Number(x.reservas) / suma) * 100}%` : 0 }} />
-                        <span className="seg-ta" style={{ height: suma ? `${(Number(x.pasajes) / suma) * 100}%` : 0 }} />
-                      </div>
-                      <span className="grafico-dia">{dia(x.dia)}</span>
-                    </div>
-                  );
-                })}
+              <h2>Ingresos de los últimos 14 días</h2>
+              <div className="grafico-recharts" role="img" aria-label={`Ingresos por día: ${serie.map((x) => `${x.dia} ${soles(x.TransAndino + x.Aeropuerto)}`).join(', ')}`}>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={serie} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--linea)" />
+                    <XAxis dataKey="dia" tick={{ fontSize: 12, fill: 'var(--tinta-suave)' }} />
+                    <YAxis tickFormatter={(v) => `S/ ${v}`} tick={{ fontSize: 12, fill: 'var(--tinta-suave)' }} width={64} />
+                    <Tooltip content={<Globo />} cursor={{ fill: 'rgba(28, 95, 168, 0.08)' }} />
+                    <Legend />
+                    <Bar dataKey="TransAndino" stackId="a" fill={COLORES.ta} animationDuration={900} />
+                    <Bar dataKey="Aeropuerto" stackId="a" fill={COLORES.aero} radius={[6, 6, 0, 0]} animationDuration={900} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </section>
-            <section className="tarjeta">
-              <h2>Ingresos por app · <Numero valor={total} formato={soles} /></h2>
-              <div className="barras">
-                <div className="barra-fila"><span>TransAndino</span><span className="barra-pista"><span className="barra-relleno relleno-ta crecer" style={{ width: `${pct(d.ingresos_pasajes)}%` }} /></span><strong>{soles(d.ingresos_pasajes)}</strong></div>
-                <div className="barra-fila"><span>Aeropuerto</span><span className="barra-pista"><span className="barra-relleno relleno-aero crecer" style={{ width: `${pct(d.ingresos_estacionamiento)}%` }} /></span><strong>{soles(d.ingresos_estacionamiento)}</strong></div>
-              </div>
-            </section>
+
+            <div className="rejilla-2">
+              <section className="tarjeta">
+                <h2>Ingresos por app</h2>
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie data={porApp} dataKey="total" nameKey="nombre" innerRadius={60} outerRadius={95} paddingAngle={3} animationDuration={900}>
+                      <Cell fill={COLORES.ta} /><Cell fill={COLORES.aero} />
+                    </Pie>
+                    <Tooltip formatter={(v) => soles(v)} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </section>
+              <section className="tarjeta">
+                <h2>Medios de pago</h2>
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie data={metodos} dataKey="total" nameKey="nombre" outerRadius={95} animationDuration={900} label={({ nombre, percent }) => `${nombre} ${Math.round(percent * 100)} %`}>
+                      {metodos.map((m, i) => <Cell key={m.nombre} fill={COLORES_METODO[i % COLORES_METODO.length]} />)}
+                    </Pie>
+                    <Tooltip formatter={(v, _n, item) => [`${soles(v)} · ${item.payload.operaciones} pagos`, item.payload.nombre]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </section>
+            </div>
           </>
         )}
       </Carga>

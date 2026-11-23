@@ -12,6 +12,7 @@ export const authApi = {
 export const pasajesApi = {
   rutas: () => datos(api.get('/pasajes/rutas')),
   cotizar: (d) => datos(api.post('/pasajes/cotizar', d)),
+  disponibilidad: (idRuta, desde) => datos(api.get('/pasajes/disponibilidad', { params: { id_ruta: idRuta, desde, dias: 90 } })),
   asientos: (idRuta, fecha) => datos(api.get('/pasajes/asientos', { params: { id_ruta: idRuta, fecha } })),
   comprar: (d) => datos(api.post('/pasajes', d)),
   mios: () => datos(api.get('/pasajes/mios')),

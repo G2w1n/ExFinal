@@ -102,6 +102,39 @@ ExFinal/
 - Un asiento no se vende dos veces (índice único).
 - Las contraseñas se guardan cifradas con **bcrypt**.
 
+## Fase 10 · Versión profesional
+
+| Para qué | Librería | Dónde se ve |
+|---|---|---|
+| Tiempo real | **Socket.IO** (`/api/tiempo-real`) | Badge "En vivo"; avisos al cliente cuando su espacio está listo, pagado o abordado; tableros que se actualizan solos |
+| Datos y caché | **TanStack Query** | Todas las pantallas; se refrescan al volver a la pestaña o al llegar un evento del socket |
+| Avisos | **Sonner** | Avisos apilables con tema claro/oscuro |
+| Animaciones | **Framer Motion** · **Lottie** | Transición entre páginas, listas animadas, avión en la portada, check al confirmar |
+| Arrastrar y soltar | **dnd-kit** | Tablero de reservas (mouse, dedo o teclado, con anuncios para lector de pantalla) |
+| Mapas | **React Leaflet** + OpenStreetMap | "Ver en el mapa" en Mis viajes y en Llegadas esperadas (posición estimada del bus) |
+| Gráficos | **Recharts** | CRM › Indicadores: ingresos de 14 días, por app y por medio de pago |
+| Calendario | **React Day Picker** | Comprar pasaje: días llenos bloqueados y marcas de pocos asientos |
+| Formularios | **React Hook Form + Zod** | Login y Registro con validación al instante y fuerza de la contraseña |
+| Paleta de comandos | **cmdk** | `Ctrl + K`: ir a cualquier pantalla, buscar clientes/códigos, cambiar tema o idioma |
+| PDF | **jsPDF** | Comprobante › "Descargar PDF" con QR |
+| Idiomas | **react-i18next** | Español, inglés y quechua (selector en la barra) |
+| Lector QR | **html5-qrcode** | Garita: usa la cámara trasera del celular |
+| Errores | **Error Boundary** | Si una pantalla falla, muestra un aviso y deja seguir usando la app |
+| Documentación | **Swagger UI** | `https://exfinal-hd5z.onrender.com/api/docs` (local: `http://localhost:3000/api/docs`) |
+| Pruebas | **Vitest + Testing Library** · `node --test` | `npm test` en cada carpeta |
+| Integración continua | **GitHub Actions** | `.github/workflows/ci.yml`: pruebas de la API y del front + build en cada push y PR |
+
+**Pruebas**
+
+```bash
+cd app_web_node_api && npm test   # 9 pruebas: tarifas, Swagger, 401, CORS (no necesitan base de datos)
+cd app_web_react && npm test      # 20 pruebas: formato, menú por roles, Zod, mapa y componentes
+```
+
+**Lighthouse** (portada, versión de producción, simulando celular): accesibilidad **100**, buenas prácticas **96**, SEO **92**, rendimiento **81**.
+
+> Socket.IO usa el mismo puerto que la API: en Render **no** hay que agregar variables nuevas. En el plan gratis, la primera conexión tarda mientras el servidor despierta; el indicador pasa de "Sin conexión" a "En vivo".
+
 ## Cuentas de prueba (contraseña `123456`)
 
 | Correo | Roles |
@@ -187,7 +220,7 @@ Pruebas de las reglas de precio: `cd app_web_node_api && npm test`.
 | `GET /api/notificaciones` | cualquier usuario con sesión (cada uno ve lo suyo) |
 | `GET /api/crm/clientes` · `GET /api/crm/clientes/:id` · `POST /:id/notas` · `GET /api/crm/indicadores` | personal de cualquiera de las dos apps |
 
-Todas las respuestas de error tienen la forma `{ "mensaje": "…" }`.
+Todas las respuestas de error tienen la forma `{ "mensaje": "…" }`. La documentación completa e interactiva está en **`/api/docs`** (Swagger) y `GET /api/pasajes/disponibilidad?id_ruta=&desde=` da los asientos vendidos por día para el calendario.
 
 ## Modelo de datos
 

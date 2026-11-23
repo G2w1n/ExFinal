@@ -4,7 +4,7 @@ import { AppError } from '../utils/AppError.js';
 import { texto } from '../utils/validaciones.js';
 
 export const clientes = (q) => repo.clientes({ buscar: String(q.buscar ?? ''), segmento: String(q.segmento ?? '') });
-export const indicadores = async () => ({ ...(await repo.indicadores()), serie: await repo.ingresosPorDia(14) });
+export const indicadores = async () => ({ ...(await repo.indicadores()), serie: await repo.ingresosPorDia(14), por_metodo: await repo.porMetodo() });
 
 // Campanita: el personal ve lo de sus apps; el cliente, lo de sus viajes
 export function notificaciones(usuario) {

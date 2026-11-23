@@ -1,0 +1,44 @@
+# Integración continua: en cada push y pull request corre las pruebas de la API y del front y compila React
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  api:
+    name: API (Node + Express)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app_web_node_api
+    env:
+      JWT_SECRET: prueba-ci
+      CORS_ORIGIN: http://localhost:5173
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app_web_node_api/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  web:
+    name: Web (React + Vite)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app_web_react
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app_web_react/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

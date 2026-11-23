@@ -4,7 +4,7 @@ import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { integracionesApi } from '../api/servicios.api.js';
+import { imagenesApi, integracionesApi } from '../api/servicios.api.js';
 import { Carga } from '../components/Carga.jsx';
 import { Estado } from '../components/Estado.jsx';
 import { Pagina } from '../components/Pagina.jsx';
@@ -41,6 +41,7 @@ export function MisViajes() {
                 )}
               </AnimatePresence>
               <div className="viaje-parte parte-ta">
+                {p.imagen_v && <img className="viaje-foto" src={imagenesApi.url('destino', p.id_ruta, p.imagen_v)} alt={`Foto de ${p.destino}`} loading="lazy" width="480" height="270" />}
                 <p className="etiqueta-app">TransAndino · {p.codigo}</p>
                 <h2>{p.origen} → {p.destino}</h2>
                 <p>Sale {fechaHora(p.fecha_salida)}</p>

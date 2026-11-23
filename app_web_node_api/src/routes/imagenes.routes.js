@@ -11,6 +11,8 @@ import { asyncHandler as h } from '../utils/asyncHandler.js';
 const binario = express.raw({ type: ['image/webp', 'image/jpeg', 'image/png'], limit: MAXIMO });
 
 const r = Router();
+r.get('/', h(c.catalogo));                       // qué fotos públicas hay (sin los bytes)
+r.post('/ejemplos', auth, h(c.ejemplos)); // cargar las fotos de ejemplo (administradores)
 r.get('/:tipo/:id', authOpcional, h(c.ver));
 r.put('/:tipo/:id', auth, binario, h(c.subir));
 r.delete('/:tipo/:id', auth, h(c.borrar));

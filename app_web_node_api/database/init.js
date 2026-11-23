@@ -1,6 +1,7 @@
 // database/init.js
 // "npm run db:init": crea las tablas (schema.sql) y carga los datos de prueba del grupo.
 // BORRA lo que haya en esas tablas: úsalo solo en la base del proyecto.
+import { cargarEjemplos } from '../src/services/imagenes.service.js';
 import fs from 'node:fs/promises';
 import bcrypt from 'bcryptjs';
 import { pool, enTransaccion } from '../src/config/db.js';
@@ -176,6 +177,10 @@ async function main() {
     await db.query(`SELECT setval(pg_get_serial_sequence('reservas_estacionamiento', 'id'), $1)`, [nReserva]);
     console.log(`Usuarios: ${4 + 10} · rutas: ${RUTAS.length} · pasajes: ${nPasaje} · reservas: ${nReserva}`);
   });
+
+  // Fotos de ejemplo (paisajes, aeropuerto, estacionamiento, auto y bus) guardadas en la base
+  const fotos = await cargarEjemplos(null);
+  console.log(`Fotos de ejemplo: ${fotos.escenas} de la página · ${fotos.destinos} de destinos`);
 
   console.log(`Listo. Contraseña de todas las cuentas de prueba: ${CLAVE}`);
   await pool.end();

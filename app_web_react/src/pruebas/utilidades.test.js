@@ -73,9 +73,10 @@ describe('imágenes', async () => {
     expect(kb(48 * 1024)).toBe('48 KB');
     expect(kb(3.2 * 1024 * 1024)).toBe('3.2 MB');
   });
-  it('el menú del admin de TransAndino incluye Fotos de destinos', () => {
+  it('los administradores ven Fotos de la página y el empleado no', () => {
     const menu = armarMenu({ roles: { transandino: 'administrador', aeropuerto: 'cliente' } });
-    expect(menu.find((g) => g.modulo === 'transandino').opciones.map(([r]) => r)).toContain('/app/transandino/destinos');
-    expect(armarMenu({ roles: { transandino: 'empleado' } })[0].opciones.map(([r]) => r)).not.toContain('/app/transandino/destinos');
+    expect(menu.find((g) => g.modulo === 'transandino').opciones.map(([r]) => r)).toContain('/app/fotos');
+    expect(armarMenu({ roles: { aeropuerto: 'administrador' } })[0].opciones.map(([r]) => r)).toContain('/app/fotos');
+    expect(armarMenu({ roles: { transandino: 'empleado' } })[0].opciones.map(([r]) => r)).not.toContain('/app/fotos');
   });
 });

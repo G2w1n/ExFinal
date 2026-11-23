@@ -77,3 +77,5 @@ export const imagenesApi = {
   subir: (tipo, id, blob) => datos(api.put(`/imagenes/${tipo}/${id}`, blob, { headers: { 'Content-Type': blob.type } })),
   borrar: (tipo, id) => api.delete(`/imagenes/${tipo}/${id}`),
 };
+imagenesApi.catalogo = () => datos(api.get('/imagenes'));
+imagenesApi.ejemplos = (reemplazar = false) => datos(api.post('/imagenes/ejemplos', { reemplazar }));

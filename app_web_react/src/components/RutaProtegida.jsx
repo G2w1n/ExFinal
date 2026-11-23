@@ -3,12 +3,13 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
-export function RutaProtegida({ modulo, roles, personal = false, children }) {
+export function RutaProtegida({ modulo, roles, personal = false, admin = false, children }) {
   const { usuario, tiene } = useAuth();
   const ubicacion = useLocation();
   if (!usuario) return <Navigate to="/login" replace state={{ desde: ubicacion.pathname + ubicacion.search }} />;
   const esPersonal = ['transandino', 'aeropuerto'].some((m) => tiene(m, 'administrador', 'empleado'));
-  const permitido = personal ? esPersonal : !modulo || tiene(modulo, ...roles);
+  const esAdmin = ['transandino', 'aeropuerto'].some((m) => tiene(m, 'administrador'));
+  const permitido = admin ? esAdmin : personal ? esPersonal : !modulo || tiene(modulo, ...roles);
   if (!permitido) {
     return (
       <section className="caja-mensaje" role="alert">

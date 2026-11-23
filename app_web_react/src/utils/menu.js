@@ -13,7 +13,7 @@ export function armarMenu(usuario) {
     const opciones = ta === 'cliente'
       ? [['/app/transandino/comprar', 'Comprar pasaje'], ['/app/transandino/mis-pasajes', 'Mis pasajes']]
       : [['/app/transandino/panel', 'Panel de pasajes'], ['/app/transandino/comprar', 'Venta presencial']];
-    if (ta === 'administrador') opciones.push(['/app/transandino/destinos', 'Fotos de destinos']);
+    if (ta === 'administrador') opciones.push(['/app/fotos', 'Fotos de la página']);
     grupos.push({ modulo: 'transandino', rol: ta, opciones });
   }
   const aero = roles.aeropuerto;
@@ -23,6 +23,7 @@ export function armarMenu(usuario) {
       : [['/app/aeropuerto/panel', 'Panel de reservas'], ['/app/aeropuerto/tablero', 'Tablero (arrastrar)'], ['/app/aeropuerto/llegadas', 'Llegadas esperadas']];
     // Integración 2: el administrador de TransAndino es cliente del aeropuerto y reserva espacio para sus buses
     if (ta === 'administrador') opciones = [...opciones, ['/app/aeropuerto/espacio-bus', 'Espacio para buses']];
+    if (aero === 'administrador') opciones = [...opciones, ['/app/fotos', 'Fotos de la página']];
     grupos.push({ modulo: 'aeropuerto', rol: aero, opciones });
   }
   if (ta === 'cliente' && aero === 'cliente') {

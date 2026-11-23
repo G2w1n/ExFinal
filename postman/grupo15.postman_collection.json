@@ -1,0 +1,1539 @@
+{
+  "info": {
+    "name": "Grupo 15 · Viaje a Cusco (API)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "1) Ejecuta \"Sesión › Iniciar sesión\" (el token se guarda solo).\n2) Prueba las demás rutas.\nPara otra cuenta cambia el correo del login: admin@aeropuerto.pe, admin@transandino.pe, empleado1@aeropuerto.pe, empleado1@transandino.pe, cliente1@correo.com (contraseña 123456).\nPara probar en tu PC cambia baseUrl a http://localhost:3000/api."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://exfinal-hd5z.onrender.com/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Sistema",
+      "item": [
+        {
+          "name": "Estado de la API y de la base de datos",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salud"
+              ]
+            },
+            "description": "GET /salud"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sesión",
+      "item": [
+        {
+          "name": "Iniciar sesión (devuelve el token JWT)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"cliente1@correo.com\",\n  \"password\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Inicio de sesión correcto', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "if (r.token) { pm.collectionVariables.set('token', r.token); console.log('Token guardado para', r.usuario.correo); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear cuenta (cliente en las dos apps)",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Prueba Postman\",\n  \"correo\": \"prueba.postman@correo.com\",\n  \"password\": \"123456\",\n  \"dni\": \"41234567\",\n  \"celular\": \"987654321\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /auth/registro"
+          }
+        },
+        {
+          "name": "Mi cuenta y mis roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/yo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "yo"
+              ]
+            },
+            "description": "GET /auth/yo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "TransAndino · pasajes",
+      "item": [
+        {
+          "name": "Rutas y horarios (público)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/rutas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "rutas"
+              ]
+            },
+            "description": "GET /pasajes/rutas"
+          }
+        },
+        {
+          "name": "Asientos ocupados de un viaje",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/asientos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "asientos"
+              ],
+              "query": [
+                {
+                  "key": "id_ruta",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "fecha",
+                  "value": "2026-12-20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "GET /pasajes/asientos"
+          }
+        },
+        {
+          "name": "Asientos vendidos por día (calendario)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/disponibilidad",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "disponibilidad"
+              ],
+              "query": [
+                {
+                  "key": "id_ruta",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "desde",
+                  "value": "2026-12-01",
+                  "disabled": true
+                },
+                {
+                  "key": "dias",
+                  "value": "30",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /pasajes/disponibilidad"
+          }
+        },
+        {
+          "name": "Precio calculado en el servidor",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/cotizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "cotizar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asiento\": 3,\n  \"equipaje_kg\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /pasajes/cotizar"
+          }
+        },
+        {
+          "name": "Comprar pasaje (el personal puede vender con correo_cliente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_ruta\": 1,\n  \"fecha\": \"2026-12-20\",\n  \"asiento\": 15,\n  \"equipaje_kg\": 18\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /pasajes"
+          }
+        },
+        {
+          "name": "Panel: listar pasajes (personal TransAndino)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes"
+              ],
+              "query": [
+                {
+                  "key": "buscar",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "estado",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "fecha",
+                  "value": "2026-12-20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "GET /pasajes"
+          }
+        },
+        {
+          "name": "Mis pasajes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "mios"
+              ]
+            },
+            "description": "GET /pasajes/mios"
+          }
+        },
+        {
+          "name": "Detalle (dueño o personal)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /pasajes/{id}"
+          }
+        },
+        {
+          "name": "Editar antes de pagar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PUT /pasajes/{id}"
+          }
+        },
+        {
+          "name": "Eliminar (administrador TransAndino)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "DELETE /pasajes/{id}"
+          }
+        },
+        {
+          "name": "Pagar en línea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id",
+                "pagar"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /pasajes/{id}/pagar"
+          }
+        },
+        {
+          "name": "Cancelar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id/cancelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id",
+                "cancelar"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "POST /pasajes/{id}/cancelar"
+          }
+        },
+        {
+          "name": "Personal: abordado o cancelado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id",
+                "estado"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PATCH /pasajes/{id}/estado"
+          }
+        },
+        {
+          "name": "Trazabilidad: quién y cuándo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id",
+                "historial"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /pasajes/{id}/historial"
+          }
+        },
+        {
+          "name": "Comprobante (pasaje pagado)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/:id/comprobante",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                ":id",
+                "comprobante"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /pasajes/{id}/comprobante"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Aeropuerto · reservas",
+      "item": [
+        {
+          "name": "Ocupación actual por zona (público)",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/ocupacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                "ocupacion"
+              ]
+            },
+            "description": "GET /reservas/ocupacion"
+          }
+        },
+        {
+          "name": "Tarifa calculada en el servidor",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "noauth"
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/cotizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                "cotizar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"horas\": 6,\n  \"fecha_hora_entrada\": \"2026-12-20T15:30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /reservas/cotizar"
+          }
+        },
+        {
+          "name": "Reservar (con id_pasaje se enlaza al pasaje)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"ABC-123\",\n  \"fecha_hora_entrada\": \"2026-12-21T07:30\",\n  \"horas\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /reservas"
+          }
+        },
+        {
+          "name": "Panel: listar reservas (personal Aeropuerto)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ],
+              "query": [
+                {
+                  "key": "buscar",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "estado",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "tipo",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "fecha",
+                  "value": "2026-12-20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "GET /reservas"
+          }
+        },
+        {
+          "name": "Mis reservas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/mias",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                "mias"
+              ]
+            },
+            "description": "GET /reservas/mias"
+          }
+        },
+        {
+          "name": "Detalle",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /reservas/{id}"
+          }
+        },
+        {
+          "name": "Editar antes de pagar",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "PUT /reservas/{id}"
+          }
+        },
+        {
+          "name": "Eliminar (administrador Aeropuerto)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "DELETE /reservas/{id}"
+          }
+        },
+        {
+          "name": "Pagar en línea",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id",
+                "pagar"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /reservas/{id}/pagar"
+          }
+        },
+        {
+          "name": "Cancelar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id/cancelar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id",
+                "cancelar"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "POST /reservas/{id}/cancelar"
+          }
+        },
+        {
+          "name": "Personal: preparado, finalizado o cancelado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id",
+                "estado"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PATCH /reservas/{id}/estado"
+          }
+        },
+        {
+          "name": "Personal: asignar zona",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id/zona",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id",
+                "zona"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"zona\": \"B\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PATCH /reservas/{id}/zona"
+          }
+        },
+        {
+          "name": "Trazabilidad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id",
+                "historial"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /reservas/{id}/historial"
+          }
+        },
+        {
+          "name": "Comprobante con QR (reserva pagada)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/:id/comprobante",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                ":id",
+                "comprobante"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /reservas/{id}/comprobante"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Integraciones",
+      "item": [
+        {
+          "name": "HU-15.1/15.4 · pasaje + estacionamiento (JOIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/mis-viajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "mis-viajes"
+              ]
+            },
+            "description": "GET /integraciones/mis-viajes"
+          }
+        },
+        {
+          "name": "HU-15.1 · datos precargados para reservar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/prellenado/:idPasaje",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "prellenado",
+                ":idPasaje"
+              ],
+              "variable": [
+                {
+                  "key": "idPasaje",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /integraciones/prellenado/{idPasaje}"
+          }
+        },
+        {
+          "name": "HU-15.2 · espacio para buses (admin TransAndino)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/espacio-bus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "espacio-bus"
+              ]
+            },
+            "description": "POST /integraciones/espacio-bus"
+          }
+        },
+        {
+          "name": "HU-15.2 · mis reservas de buses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/mis-buses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "mis-buses"
+              ]
+            },
+            "description": "GET /integraciones/mis-buses"
+          }
+        },
+        {
+          "name": "HU-15.3 · llegadas esperadas por hora del bus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/llegadas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "llegadas"
+              ],
+              "query": [
+                {
+                  "key": "fecha",
+                  "value": "2026-12-20",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "GET /integraciones/llegadas"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Caja",
+      "item": [
+        {
+          "name": "Estado de mi caja, totales y cobros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/caja",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja"
+              ]
+            },
+            "description": "GET /caja"
+          }
+        },
+        {
+          "name": "Abrir con fondo inicial",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caja/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "abrir"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto_inicial\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /caja/abrir"
+          }
+        },
+        {
+          "name": "Pendientes de pago de mis apps",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/caja/pendientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "pendientes"
+              ],
+              "query": [
+                {
+                  "key": "buscar",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /caja/pendientes"
+          }
+        },
+        {
+          "name": "Cobrar (efectivo con vuelto, POS o billetera)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caja/cobrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "cobrar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entidad\": \"pasaje\",\n  \"id\": 2,\n  \"metodo\": \"efectivo\",\n  \"monto_recibido\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /caja/cobrar"
+          }
+        },
+        {
+          "name": "Arqueo y cierre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caja/cerrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "cerrar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contado\": 100,\n  \"nota\": \"Cierre de prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /caja/cerrar"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CRM",
+      "item": [
+        {
+          "name": "Notificaciones de mi cuenta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notificaciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notificaciones"
+              ]
+            },
+            "description": "GET /notificaciones"
+          }
+        },
+        {
+          "name": "Indicadores, ingresos por día y por medio de pago",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/indicadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crm",
+                "indicadores"
+              ]
+            },
+            "description": "GET /crm/indicadores"
+          }
+        },
+        {
+          "name": "Clientes por tipo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crm",
+                "clientes"
+              ],
+              "query": [
+                {
+                  "key": "buscar",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "segmento",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /crm/clientes"
+          }
+        },
+        {
+          "name": "Ficha del cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/clientes/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crm",
+                "clientes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "description": "GET /crm/clientes/{id}"
+          }
+        },
+        {
+          "name": "Agregar nota de seguimiento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/crm/clientes/:id/notas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crm",
+                "clientes",
+                ":id",
+                "notas"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": ""
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"texto\": \"Nota creada desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "POST /crm/clientes/{id}/notas"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Imágenes",
+      "item": [
+        {
+          "name": "Ver la imagen guardada en la base (destino: pública · perfil: dueño o personal)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/imagenes/:tipo/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "imagenes",
+                ":tipo",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "tipo",
+                  "value": "destino",
+                  "description": ""
+                },
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "perfil: id del usuario · destino: id de la ruta"
+                }
+              ],
+              "query": [
+                {
+                  "key": "v",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "GET /imagenes/{tipo}/{id}"
+          }
+        },
+        {
+          "name": "Subir o reemplazar (máx. 300 KB; perfil: la propia · destino: admin de TransAndino)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/imagenes/:tipo/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "imagenes",
+                ":tipo",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "tipo",
+                  "value": "destino",
+                  "description": ""
+                },
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "perfil: id del usuario · destino: id de la ruta"
+                }
+              ]
+            },
+            "description": "PUT /imagenes/{tipo}/{id}"
+          }
+        },
+        {
+          "name": "Quitar la imagen",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/imagenes/:tipo/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "imagenes",
+                ":tipo",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "tipo",
+                  "value": "destino",
+                  "description": ""
+                },
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "perfil: id del usuario · destino: id de la ruta"
+                }
+              ]
+            },
+            "description": "DELETE /imagenes/{tipo}/{id}"
+          }
+        }
+      ]
+    }
+  ]
+}

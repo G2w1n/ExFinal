@@ -5,6 +5,7 @@ import { pasajesApi } from '../../api/servicios.api.js';
 import { Desglose } from '../../components/Desglose.jsx';
 import { hoyEnLima } from '../../utils/formato.js';
 import { MapaAsientos } from './MapaAsientos.jsx';
+import { Calendario } from './Calendario.jsx';
 
 export function FormViaje({ viaje, setViaje, propio = null }) {
   const [rutas, setRutas] = useState([]);
@@ -40,12 +41,14 @@ export function FormViaje({ viaje, setViaje, propio = null }) {
         </label>
         <label>Fecha de viaje
           <input type="date" min={hoyEnLima()} value={viaje.fecha} onChange={(e) => setViaje({ ...viaje, fecha: e.target.value, asiento: null })} required />
+          <small>O elígela en el calendario.</small>
         </label>
         <label>Equipaje (kg)
           <input type="number" min="0" max="100" step="1" value={viaje.equipaje_kg} onChange={(e) => setViaje({ ...viaje, equipaje_kg: e.target.value })} />
           <small>20 kg incluidos; S/ 4 por kg extra.</small>
         </label>
       </div>
+      {viaje.id_ruta && <Calendario idRuta={viaje.id_ruta} valor={viaje.fecha} onCambiar={(fecha) => setViaje({ ...viaje, fecha, asiento: null })} />}
       {ruta && <p className="dato-ruta">Sale a las <strong>{ruta.hora_salida}</strong> · viaje de <strong>{ruta.duracion_horas} h</strong></p>}
       {viaje.id_ruta && viaje.fecha && <MapaAsientos ocupados={ocupados} elegido={viaje.asiento} onElegir={(n) => setViaje({ ...viaje, asiento: n })} />}
       <Desglose cotizacion={cotizacion} />

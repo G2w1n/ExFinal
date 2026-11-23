@@ -28,6 +28,16 @@ export async function asientosOcupados(idRuta, fechaSalida, excepto = 0) {
   return rows.map((f) => f.asiento);
 }
 
+// Asientos vendidos por día de una ruta (para pintar el calendario: lleno, pocos, libre)
+export async function vendidosPorDia(idRuta, desde, dias) {
+  const { rows } = await pool.query(
+    `SELECT to_char(fecha_salida::date, 'YYYY-MM-DD') AS fecha, COUNT(*)::int AS vendidos
+       FROM compras_pasajes
+      WHERE id_ruta = $1 AND estado <> 'cancelado' AND fecha_salida::date BETWEEN $2::date AND $2::date + $3::int
+      GROUP BY 1 ORDER BY 1`, [idRuta, desde, dias]);
+  return rows;
+}
+
 export async function crear(db, d) {
   const { rows: [{ id }] } = await db.query(`SELECT nextval(pg_get_serial_sequence('compras_pasajes', 'id'))::int AS id`);
   await db.query(

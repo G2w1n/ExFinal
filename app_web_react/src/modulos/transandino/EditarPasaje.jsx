@@ -23,7 +23,7 @@ export function EditarPasaje() {
     const p = await pasajesApi.detalle(id);
     setViaje({ id_ruta: String(p.id_ruta), fecha: p.fecha_salida.slice(0, 10), asiento: p.asiento, equipaje_kg: p.equipaje_kg });
     return p;
-  }, [id]);
+  }, [id], { enVivo: false });
   const propio = useMemo(() => pasaje && { asiento: pasaje.asiento, id_ruta: pasaje.id_ruta, fecha: pasaje.fecha_salida.slice(0, 10) }, [pasaje]);
   const volver = tiene('transandino', 'administrador', 'empleado') ? '/app/transandino/panel' : '/app/transandino/mis-pasajes';
 

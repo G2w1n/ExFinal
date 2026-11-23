@@ -1,37 +1,41 @@
 // src/App.jsx
 // React Router: todas las rutas de la SPA. Cada página valida el rol del usuario en su módulo.
 import { lazy, Suspense } from 'react';
+import { MotionConfig } from 'framer-motion';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout.jsx';
+import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import { RutaProtegida } from './components/RutaProtegida.jsx';
 import { Inicio } from './pages/Inicio.jsx';
-import { Login } from './pages/Login.jsx';
-import { Registro } from './pages/Registro.jsx';
 import { Bienvenida } from './pages/Bienvenida.jsx';
 import { NoEncontrado } from './pages/NoEncontrado.jsx';
-import { ComprarPasaje } from './modulos/transandino/ComprarPasaje.jsx';
-import { MisPasajes } from './modulos/transandino/MisPasajes.jsx';
-import { EditarPasaje } from './modulos/transandino/EditarPasaje.jsx';
-import { PanelPasajes } from './modulos/transandino/PanelPasajes.jsx';
-import { Reservar } from './modulos/aeropuerto/Reservar.jsx';
-import { MisReservas } from './modulos/aeropuerto/MisReservas.jsx';
-import { EditarReserva } from './modulos/aeropuerto/EditarReserva.jsx';
-import { PanelReservas } from './modulos/aeropuerto/PanelReservas.jsx';
-import { TableroReservas } from './modulos/aeropuerto/TableroReservas.jsx';
-import { MisViajes } from './integraciones/MisViajes.jsx';
-import { EspacioBuses } from './integraciones/EspacioBuses.jsx';
-import { LlegadasEsperadas } from './integraciones/LlegadasEsperadas.jsx';
-import { Clientes } from './crm/Clientes.jsx';
-import { FichaCliente } from './crm/FichaCliente.jsx';
-import { Indicadores } from './crm/Indicadores.jsx';
-import { Caja } from './ventanilla/Caja.jsx';
 
-// Se cargan solo cuando se abren: el lector QR (garita) y el generador de QR (comprobante) pesan
+// Cada pantalla se descarga solo cuando se abre (la portada y el login cargan rápido)
+const perezoso = (cargar, nombre) => lazy(() => cargar().then((m) => ({ default: m[nombre] })));
+const ComprarPasaje = perezoso(() => import('./modulos/transandino/ComprarPasaje.jsx'), 'ComprarPasaje');
+const MisPasajes = perezoso(() => import('./modulos/transandino/MisPasajes.jsx'), 'MisPasajes');
+const EditarPasaje = perezoso(() => import('./modulos/transandino/EditarPasaje.jsx'), 'EditarPasaje');
+const PanelPasajes = perezoso(() => import('./modulos/transandino/PanelPasajes.jsx'), 'PanelPasajes');
+const Reservar = perezoso(() => import('./modulos/aeropuerto/Reservar.jsx'), 'Reservar');
+const MisReservas = perezoso(() => import('./modulos/aeropuerto/MisReservas.jsx'), 'MisReservas');
+const EditarReserva = perezoso(() => import('./modulos/aeropuerto/EditarReserva.jsx'), 'EditarReserva');
+const PanelReservas = perezoso(() => import('./modulos/aeropuerto/PanelReservas.jsx'), 'PanelReservas');
+const TableroReservas = perezoso(() => import('./modulos/aeropuerto/TableroReservas.jsx'), 'TableroReservas');
+const MisViajes = perezoso(() => import('./integraciones/MisViajes.jsx'), 'MisViajes');
+const EspacioBuses = perezoso(() => import('./integraciones/EspacioBuses.jsx'), 'EspacioBuses');
+const LlegadasEsperadas = perezoso(() => import('./integraciones/LlegadasEsperadas.jsx'), 'LlegadasEsperadas');
+const Clientes = perezoso(() => import('./crm/Clientes.jsx'), 'Clientes');
+const FichaCliente = perezoso(() => import('./crm/FichaCliente.jsx'), 'FichaCliente');
+const Caja = perezoso(() => import('./ventanilla/Caja.jsx'), 'Caja');
+const Vuelos = perezoso(() => import('./pages/Vuelos.jsx'), 'Vuelos');
+const Estacionamiento = perezoso(() => import('./pages/Estacionamiento.jsx'), 'Estacionamiento');
+const Login = perezoso(() => import('./pages/Login.jsx'), 'Login');
+const Registro = perezoso(() => import('./pages/Registro.jsx'), 'Registro');
+// También el lector QR (garita), los gráficos y el generador de QR (comprobante)
 const Garita = lazy(() => import('./ventanilla/Garita.jsx').then((m) => ({ default: m.Garita })));
+const Indicadores = lazy(() => import('./crm/Indicadores.jsx').then((m) => ({ default: m.Indicadores })));
 const Comprobante = lazy(() => import('./pages/Comprobante.jsx').then((m) => ({ default: m.Comprobante })));
 const cargando = <p className="carga" role="status"><span className="girando" aria-hidden="true" /> Cargando…</p>;
-import { Vuelos } from './pages/Vuelos.jsx';
-import { Estacionamiento } from './pages/Estacionamiento.jsx';
 
 const TODOS = ['cliente', 'administrador', 'empleado'];
 const PERSONAL = ['administrador', 'empleado'];
@@ -39,6 +43,8 @@ const ruta = (modulo, roles, elemento) => <RutaProtegida modulo={modulo} roles={
 
 export default function App() {
   return (
+    <MotionConfig reducedMotion="user">
+    <ErrorBoundary llave="app">
     <Suspense fallback={cargando}>
     <Routes>
       <Route path="/" element={<Inicio />} />
@@ -71,5 +77,7 @@ export default function App() {
       <Route path="*" element={<NoEncontrado />} />
     </Routes>
     </Suspense>
+    </ErrorBoundary>
+    </MotionConfig>
   );
 }

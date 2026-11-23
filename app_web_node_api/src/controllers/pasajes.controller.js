@@ -4,6 +4,7 @@ import { idParam } from '../utils/validaciones.js';
 
 export const rutas = async (_req, res) => res.json(await s.rutas());
 export const cotizar = async (req, res) => res.json(s.cotizar(req.body ?? {}));
+export const disponibilidad = async (req, res) => res.json(await s.disponibilidad(req.query));
 export const asientos = async (req, res) => res.json(await s.asientos(req.query));
 export const comprar = async (req, res) => res.status(201).json(await s.comprar(req.usuario, req.body ?? {}));
 export const mios = async (req, res) => res.json(await s.misPasajes(req.usuario));

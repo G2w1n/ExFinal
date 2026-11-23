@@ -10,6 +10,8 @@ import crmRoutes, { notificacionesRoutes } from './routes/crm.routes.js';
 import cajaRoutes from './routes/caja.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { pool } from './config/db.js';
+import swaggerUi from 'swagger-ui-express';
+import { openapi } from './docs/openapi.js';
 
 export const app = express();
 
@@ -18,7 +20,8 @@ export const app = express();
 const origenes = String(process.env.CORS_ORIGIN ?? 'http://localhost:5173')
   .split(',').map((o) => o.trim().replace(/\/+$/, '')).filter(Boolean)
   .map((o) => new RegExp(`^${o.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[a-z0-9-]*')}$`, 'i'));
-app.use(cors({ origin: (origen, listo) => listo(null, !origen || origenes.some((r) => r.test(origen))) }));
+export const origenPermitido = (origen) => !origen || origenes.some((r) => r.test(origen));
+app.use(cors({ origin: (origen, listo) => listo(null, origenPermitido(origen)) }));
 app.use(express.json({ limit: '100kb' }));
 app.disable('x-powered-by');
 
@@ -26,6 +29,10 @@ app.get('/api/salud', async (_req, res) => {
   const [fila] = (await pool.query('SELECT NOW() AS ahora')).rows;
   res.json({ ok: true, base: fila ? 'conectada' : 'sin respuesta' });
 });
+
+// Documentación interactiva de la API (Swagger)
+app.get('/api/docs.json', (_req, res) => res.json(openapi));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapi, { customSiteTitle: 'API Grupo 15 · Viaje a Cusco', swaggerOptions: { persistAuthorization: true } }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/pasajes', pasajesRoutes);

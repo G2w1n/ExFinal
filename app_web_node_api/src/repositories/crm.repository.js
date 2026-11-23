@@ -97,6 +97,11 @@ export async function indicadores() {
   return rows[0];
 }
 
+export async function porMetodo() {
+  const { rows } = await pool.query(`SELECT metodo, COUNT(*)::int AS operaciones, COALESCE(SUM(monto), 0) AS total FROM pagos GROUP BY metodo ORDER BY total DESC`);
+  return rows;
+}
+
 // Ingresos de los últimos N días (hora de Perú) por app, para el gráfico de barras
 export async function ingresosPorDia(dias = 14) {
   const { rows } = await pool.query(`

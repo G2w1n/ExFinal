@@ -8,6 +8,7 @@ import { DialogoPago } from '../../components/DialogoPago.jsx';
 import { Estado } from '../../components/Estado.jsx';
 import { Pagina } from '../../components/Pagina.jsx';
 import { PasosViaje } from '../../components/PasosViaje.jsx';
+import { Animacion } from '../../components/Animacion.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAvisos } from '../../context/AvisosContext.jsx';
 import { fechaHora, hoyEnLima, soles } from '../../utils/formato.js';
@@ -53,6 +54,7 @@ export function ComprarPasaje() {
       <Pagina modulo="transandino" titulo="Pasaje registrado">
         {!esPersonal && <PasosViaje actual={comprado.estado === 'registrado' ? 1 : 2} />}
         <div className="tarjeta confirmacion entrar-arriba">
+          {comprado.estado === 'pagado' && <Animacion nombre="check" className="lottie-check" etiqueta="Pago aprobado" />}
           <p className="codigo-grande">{comprado.codigo}</p>
           <p><strong>{comprado.origen} → {comprado.destino}</strong> · asiento {comprado.asiento} ({comprado.tipo_asiento})</p>
           <p>Sale {fechaHora(comprado.fecha_salida)} · llega {fechaHora(comprado.hora_llegada)}</p>

@@ -1,26 +1,21 @@
 // src/context/AvisosContext.jsx
-// Mensajes de éxito o error con el código de seguimiento (se anuncian a lectores de pantalla)
-import { createContext, useCallback, useContext, useState } from 'react';
+// Mensajes con Sonner: se apilan, se pueden cerrar y aceptan un botón de acción (por ejemplo, "Ver")
+import { createContext, useCallback, useContext } from 'react';
+import { toast, Toaster } from 'sonner';
+import { useTemaActual } from '../hooks/useTema.js';
 
 const AvisosContext = createContext(() => {});
 
 export function AvisosProvider({ children }) {
-  const [avisos, setAvisos] = useState([]);
-  const avisar = useCallback((texto, tipo = 'exito') => {
-    const id = Date.now() + Math.random();
-    setAvisos((lista) => [...lista, { id, texto, tipo }]);
-    setTimeout(() => setAvisos((lista) => lista.filter((a) => a.id !== id)), 4500);
+  const tema = useTemaActual();
+  const avisar = useCallback((texto, tipo = 'exito', opciones = {}) => {
+    const mostrar = { exito: toast.success, error: toast.error, info: toast.info }[tipo] ?? toast;
+    mostrar(texto, { duration: tipo === 'error' ? 6000 : 4000, ...opciones });
   }, []);
   return (
     <AvisosContext.Provider value={avisar}>
       {children}
-      <div className="avisos" aria-live="polite">
-        {avisos.map((a) => (
-          <p key={a.id} className={`aviso aviso-${a.tipo}`} role={a.tipo === 'error' ? 'alert' : 'status'}>
-            <span aria-hidden="true">{a.tipo === 'error' ? '!' : '✓'}</span> {a.texto}
-          </p>
-        ))}
-      </div>
+      <Toaster position="bottom-right" richColors closeButton theme={tema === 'oscuro' ? 'dark' : 'light'} toastOptions={{ className: 'aviso-sonner' }} />
     </AvisosContext.Provider>
   );
 }

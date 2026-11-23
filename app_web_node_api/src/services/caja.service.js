@@ -9,6 +9,9 @@ import { tieneRol } from '../middlewares/requireRol.js';
 import { AppError } from '../utils/AppError.js';
 import { redondear } from '../utils/tarifas.js';
 import { numero } from '../utils/validaciones.js';
+import { avisarCobro, avisarPasaje, avisarReserva } from '../config/tiempoReal.js';
+import * as pasajesRepo from '../repositories/pasajes.repository.js';
+import * as reservasRepo from '../repositories/reservas.repository.js';
 
 const PERSONAL = ['administrador', 'empleado'];
 const atiende = (u) => ({ pasajes: tieneRol(u, 'transandino', ...PERSONAL), reservas: tieneRol(u, 'aeropuerto', ...PERSONAL) });
@@ -50,7 +53,7 @@ export async function cobrar(usuario, { entidad, id, metodo, monto_recibido }) {
   if (!caja) throw new AppError(409, 'Primero abre tu caja con el fondo inicial.');
   const idRegistro = numero(id, 'El registro', { min: 1, entero: true });
 
-  return enTransaccion(async (db) => {
+  const resultado = await enTransaccion(async (db) => {
     const { rows } = await db.query(`SELECT * FROM ${datos.tabla} WHERE id = $1 FOR UPDATE`, [idRegistro]);
     const fila = rows[0];
     if (!fila) throw new AppError(404, 'Ese registro no existe.');
@@ -68,6 +71,11 @@ export async function cobrar(usuario, { entidad, id, metodo, monto_recibido }) {
     await historial.registrar(db, { entidad, id: idRegistro, estado: 'pagado', usuarioId: usuario.id, nota: `Cobro en ventanilla (${NOMBRE_METODO[metodo]})` });
     return { ...pago, codigo: fila.codigo, entidad, id: idRegistro, vuelto, monto_recibido: recibido };
   });
+  // En vivo: el cliente ve su pago al instante y el panel del personal se actualiza
+  if (entidad === 'pasaje') avisarPasaje(await pasajesRepo.porId(idRegistro));
+  else avisarReserva(await reservasRepo.porId(idRegistro));
+  avisarCobro(entidad === 'pasaje' ? 'transandino' : 'aeropuerto', resultado);
+  return resultado;
 }
 
 export async function cerrar(usuario, { contado, nota }) {

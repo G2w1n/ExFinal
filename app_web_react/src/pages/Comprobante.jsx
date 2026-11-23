@@ -9,6 +9,7 @@ import { CodigoQR, textoPase } from '../components/CodigoQR.jsx';
 import { Estado } from '../components/Estado.jsx';
 import { useCarga } from '../hooks/useCarga.js';
 import { fechaHora, momento, soles } from '../utils/formato.js';
+import { descargarComprobantePDF } from '../utils/pdfComprobante.js';
 
 const METODOS = { tarjeta: 'Tarjeta', billetera: 'Billetera (Yape / Plin)', efectivo: 'Efectivo', pos: 'Tarjeta en POS' };
 
@@ -24,12 +25,27 @@ export function Comprobante() {
   const r = datos && (esPasaje ? datos.pasaje : datos.reserva);
   const pago = datos?.pago;
 
+  function descargarPDF() {
+    const filas = esPasaje
+      ? [['Pasajero', r.cliente], ['Ruta', `${r.origen} -> ${r.destino}`], ['Salida', fechaHora(r.fecha_salida)], ['Llegada', fechaHora(r.hora_llegada)], ['Asiento', `${r.asiento} (${r.tipo_asiento})`], ['Equipaje', `${r.equipaje_kg} kg`]]
+      : [['Pasajero', r.nombre_pasajero], ['Placa', r.placa], ['Ingreso', fechaHora(r.fecha_hora_entrada)], ['Estadía', `${r.horas} h${r.zona_vip ? ' · VIP' : ''}`], ...(r.pasaje_codigo ? [['Pasaje', r.pasaje_codigo]] : [])];
+    descargarComprobantePDF({
+      titulo: esPasaje ? 'Pasaje en bus' : 'Estacionamiento',
+      empresa: esPasaje ? 'TransAndino Perú' : 'Aeropuerto Internacional del Cusco',
+      codigo: r.codigo,
+      filas: [...filas, ['Operación', pago.codigo_operacion], ['Medio de pago', METODOS[pago.metodo] ?? pago.metodo], ['Fecha de pago', momento(pago.fecha)]],
+      total: soles(pago.monto).replace(/\u00a0/g, ' '),
+      textoQR: textoPase(r.codigo, pago.codigo_operacion),
+    });
+  }
+
   return (
     <section className="pagina">
       <div className="pagina-cabecera no-imprimir">
         <div><p className="miga">{esPasaje ? 'TransAndino' : 'Aeropuerto Cusco'} › Comprobante</p><h1>Comprobante</h1></div>
         <div className="pagina-acciones">
-          <button type="button" className="btn" onClick={() => window.print()} disabled={!datos}>Imprimir</button>
+          <button type="button" className="btn" onClick={descargarPDF} disabled={!datos}>Descargar PDF</button>
+          <button type="button" className="btn btn-borde" onClick={() => window.print()} disabled={!datos}>Imprimir</button>
           <Link className="btn btn-borde" to={esPasaje ? '/app/transandino/mis-pasajes' : '/app/aeropuerto/mis-reservas'}>Volver</Link>
         </div>
       </div>

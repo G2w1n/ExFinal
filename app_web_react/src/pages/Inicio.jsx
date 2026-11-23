@@ -8,6 +8,8 @@ import { hoyEnLima, soles } from '../utils/formato.js';
 import { CabeceraPublica, PiePublico } from '../components/Publico.jsx';
 import { Tablero } from '../vuelos/Tablero.jsx';
 import { Revelar } from '../components/Revelar.jsx';
+import { Animacion } from '../components/Animacion.jsx';
+import { useTranslation } from 'react-i18next';
 
 const PASOS = [
   ['1', 'Compra tu pasaje', 'Elige la ruta a Cusco, tu asiento y tu equipaje con TransAndino.'],
@@ -19,6 +21,7 @@ export function Inicio() {
   const { usuario } = useAuth();
   const navegar = useNavigate();
   const { hash } = useLocation();
+  const { t } = useTranslation();
   const [rutas, setRutas] = useState([]);
   const [busqueda, setBusqueda] = useState({ id_ruta: '', fecha: hoyEnLima() });
 
@@ -47,10 +50,11 @@ export function Inicio() {
 
       <main id="contenido">
         <section className="portada">
+          <Animacion nombre="avion" bucle className="portada-avion" />
           <div className="portada-texto">
             <p className="kicker">TransAndino Perú + Aeropuerto Internacional del Cusco</p>
-            <h1>Tu pasaje y tu estacionamiento, en un solo paso</h1>
-            <p className="lede">Compra tu pasaje a Cusco y deja reservado el estacionamiento del aeropuerto con la misma cuenta.</p>
+            <h1>{t('portadaTitulo')}</h1>
+            <p className="lede">{t('portadaLede')}</p>
             <form className="buscador" onSubmit={buscar}>
               <label>Ruta
                 <select value={busqueda.id_ruta} onChange={(e) => setBusqueda({ ...busqueda, id_ruta: e.target.value })} required>
@@ -60,13 +64,13 @@ export function Inicio() {
               <label>Fecha de viaje
                 <input type="date" min={hoyEnLima()} value={busqueda.fecha} onChange={(e) => setBusqueda({ ...busqueda, fecha: e.target.value })} required />
               </label>
-              <button className="btn btn-acento" type="submit">Buscar viaje</button>
+              <button className="btn btn-acento" type="submit">{t('Buscar viaje')}</button>
             </form>
           </div>
         </section>
 
         <Revelar as="section" id="como-funciona" className="bloque">
-          <h2>Cómo funciona</h2>
+          <h2>{t('Cómo funciona')}</h2>
           <ol className="pasos">
             {PASOS.map(([n, t, d]) => <li key={n}><span className="paso-n" aria-hidden="true">{n}</span><h3>{t}</h3><p>{d}</p></li>)}
           </ol>
@@ -95,7 +99,7 @@ export function Inicio() {
 
         <Revelar as="section" className="bloque" aria-label="Próximos vuelos">
           <div className="cabecera-seccion">
-            <h2>Próximos vuelos</h2>
+            <h2>{t('Próximos vuelos')}</h2>
             <Link to="/vuelos">Ver todos los vuelos →</Link>
           </div>
           <Tablero compacto limite={6} />

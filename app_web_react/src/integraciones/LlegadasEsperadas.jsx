@@ -1,6 +1,6 @@
 // src/integraciones/LlegadasEsperadas.jsx
 // Integración 3 (HU-15.3): reservas + pasajes ordenadas por la hora de llegada del bus (JOIN en la API)
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { mensajeDeError } from '../api/client.js';
 import { integracionesApi, reservasApi } from '../api/servicios.api.js';
 import { Carga } from '../components/Carga.jsx';
@@ -9,6 +9,8 @@ import { Pagina } from '../components/Pagina.jsx';
 import { useAvisos } from '../context/AvisosContext.jsx';
 import { useCarga } from '../hooks/useCarga.js';
 import { fechaHora, hora, hoyEnLima } from '../utils/formato.js';
+
+const MapaViajes = lazy(() => import('../mapa/MapaViajes.jsx'));
 
 export function LlegadasEsperadas() {
   const avisar = useAvisos();
@@ -33,6 +35,9 @@ export function LlegadasEsperadas() {
         </label>
       )}>
       <Carga cargando={cargando} error={error} reintentar={recargar} vacio={datos?.length === 0} textoVacio="No hay llegadas con reserva en esa fecha.">
+        <Suspense fallback={<div className="esqueleto-mapa" />}>
+          <MapaViajes viajes={(datos ?? []).map((l) => ({ codigo: l.pasaje_codigo, origen: l.origen, destino: l.destino, fecha_salida: l.fecha_salida, hora_llegada: l.hora_llegada, placa: l.placa }))} alto={360} />
+        </Suspense>
         <div className="tabla-scroll">
           <table className="tabla">
             <thead><tr><th>Llega</th><th>Pasaje</th><th>Pasajero</th><th>Desde</th><th>Placa</th><th>Ingreso</th><th>Estado</th><th><span className="visualmente-oculto">Acción</span></th></tr></thead>

@@ -33,3 +33,16 @@ test('CORS acepta el origen configurado y rechaza otros', () => {
   assert.equal(origenPermitido('http://localhost:5173'), true);
   assert.equal(origenPermitido('https://sitio-malicioso.com'), false);
 });
+
+test('imágenes: reconoce el formato real por sus primeros bytes', async () => {
+  const { formatoReal } = await import('../src/services/imagenes.service.js');
+  assert.equal(formatoReal(Buffer.from('89504e470d0a1a0a0000000d', 'hex')), 'image/png');
+  assert.equal(formatoReal(Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 0])), 'image/jpeg');
+  assert.equal(formatoReal(Buffer.from('RIFF\0\0\0\0WEBPVP8 ', 'binary')), 'image/webp');
+  assert.equal(formatoReal(Buffer.from('<svg onload=alert(1)>')), null);
+});
+
+test('subir una imagen sin sesión responde 401', async () => {
+  const r = await fetch(`${base}/imagenes/perfil/1`, { method: 'PUT', headers: { 'Content-Type': 'image/png' }, body: new Uint8Array([1, 2, 3]) });
+  assert.equal(r.status, 401);
+});

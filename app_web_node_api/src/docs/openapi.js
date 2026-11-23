@@ -24,7 +24,7 @@ export const openapi = {
   components: { securitySchemes: { bearer: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } } },
   tags: [
     { name: 'Sesión' }, { name: 'TransAndino · pasajes' }, { name: 'Aeropuerto · reservas' },
-    { name: 'Integraciones' }, { name: 'Caja' }, { name: 'CRM' }, { name: 'Sistema' },
+    { name: 'Integraciones' }, { name: 'Caja' }, { name: 'CRM' }, { name: 'Imágenes' }, { name: 'Sistema' },
   ],
   paths: {
     '/salud': { get: op('Sistema', 'Estado de la API y de la base de datos') },
@@ -88,5 +88,15 @@ export const openapi = {
     '/crm/clientes': { get: op('CRM', 'Clientes por tipo', { security: conSesion, parameters: query('buscar', 'segmento') }) },
     '/crm/clientes/{id}': { get: op('CRM', 'Ficha del cliente', { security: conSesion, parameters: id }) },
     '/crm/clientes/{id}/notas': { post: op('CRM', 'Agregar nota de seguimiento', { security: conSesion, parameters: id, requestBody: cuerpo({ texto: { type: 'string' } }, ['texto']) }) },
+
+    '/imagenes/{tipo}/{id}': {
+      parameters: [
+        { name: 'tipo', in: 'path', required: true, schema: { type: 'string', enum: ['perfil', 'destino'] } },
+        { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'perfil: id del usuario · destino: id de la ruta' },
+      ],
+      get: op('Imágenes', 'Ver la imagen guardada en la base (destino: pública · perfil: dueño o personal)', { security: [{}, { bearer: [] }], parameters: query('v'), responses: { 200: { description: 'La imagen', content: { 'image/webp': {}, 'image/jpeg': {}, 'image/png': {} } }, ...errores } }),
+      put: op('Imágenes', 'Subir o reemplazar (máx. 300 KB; perfil: la propia · destino: admin de TransAndino)', { security: conSesion, requestBody: { required: true, content: { 'image/webp': { schema: { type: 'string', format: 'binary' } }, 'image/jpeg': { schema: { type: 'string', format: 'binary' } }, 'image/png': { schema: { type: 'string', format: 'binary' } } } } }),
+      delete: op('Imágenes', 'Quitar la imagen', { security: conSesion }),
+    },
   },
 };

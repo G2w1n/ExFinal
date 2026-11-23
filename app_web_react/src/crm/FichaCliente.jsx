@@ -1,5 +1,6 @@
 // src/crm/FichaCliente.jsx
 // CRM: ficha completa del cliente (las dos apps), línea de tiempo con quién y cuándo, y notas de seguimiento
+import { Avatar } from '../components/Avatar.jsx';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { mensajeDeError } from '../api/client.js';
@@ -42,6 +43,7 @@ export function FichaCliente() {
         {c && (
           <>
             <div className="ficha-cab tarjeta">
+              <Avatar id={c.id} nombre={c.nombre} version={c.foto_v} tamano={88} className="avatar-ficha" />
               <div>
                 <p><Estado valor={c.segmento} /></p>
                 <p>{c.correo}{c.celular && ` · ${c.celular}`}</p>

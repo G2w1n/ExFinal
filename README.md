@@ -135,6 +135,21 @@ cd app_web_react && npm test      # 20 pruebas: formato, menú por roles, Zod, m
 
 > Socket.IO usa el mismo puerto que la API: en Render **no** hay que agregar variables nuevas. En el plan gratis, la primera conexión tarda mientras el servidor despierta; el indicador pasa de "Sin conexión" a "En vivo".
 
+## Fase 11 · Imágenes guardadas en Neon
+
+Las fotos se guardan **dentro de la base** (columna `BYTEA` de la tabla `imagenes`), sin servicios externos.
+
+| Foto | Quién la sube | Dónde se ve |
+|---|---|---|
+| **Perfil** | Cada usuario, en **Mi perfil** (clic en su nombre arriba) | Barra superior y, para el personal, lista y ficha del CRM |
+| **Destino** (una por ruta) | Administrador de TransAndino, en **Fotos de destinos** | Al comprar el pasaje (banner) y en la portada (Rutas y horarios) |
+
+- **El navegador achica la foto** antes de subirla: la recorta (perfil cuadrada, destino 16:9) y la convierte a WebP. Una foto de 3–5 MB queda en unos 30–90 KB, así que los 0.5 GB de Neon alcanzan para miles.
+- **La API revisa** el formato real por los primeros bytes (no confía en la extensión), el tamaño (máximo 300 KB) y el permiso: la foto de perfil solo la cambia su dueño; la de destino, solo el administrador de TransAndino.
+- La foto de destino es pública. La de perfil solo la ven su dueño y el personal.
+- Cada foto tiene una versión (`?v=`): el navegador la guarda en caché y la vuelve a pedir solo cuando cambia.
+- Rutas: `GET · PUT · DELETE /api/imagenes/{perfil|destino}/{id}` (documentadas en Swagger).
+
 ## Cuentas de prueba (contraseña `123456`)
 
 | Correo | Roles |
@@ -164,6 +179,9 @@ Los datos de prueba se crean **relativos a la fecha de hoy**: siempre hay buses 
 
 ### Si tu base ya tiene datos: migración de la fase 8
 Para la caja hacen falta la tabla `cajas` y tres columnas nuevas en `pagos`. En **Neon → SQL Editor** pega `app_web_node_api/database/migracion-fase-8.sql` y pulsa **Run**. No borra nada y se puede ejecutar dos veces. Al final debe mostrar `listo · 3 · 1`.
+
+### Migración de la fase 11 (imágenes)
+Pega `app_web_node_api/database/migracion-fase-11.sql` en **Neon → SQL Editor** y pulsa **Run**. Solo crea la tabla `imagenes`; no borra nada. Debe mostrar `listo · 1`.
 
 ## Paso 2 · Probar en tu PC
 

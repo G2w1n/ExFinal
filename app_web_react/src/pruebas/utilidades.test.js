@@ -66,3 +66,16 @@ describe('recorrido del bus en el mapa', () => {
     expect(avance('2026-11-15 20:00:00', '2026-11-16 15:00:00', '2026-11-14T00:00')).toBe(0);
   });
 });
+
+describe('imágenes', async () => {
+  const { kb } = await import('../utils/imagen.js');
+  it('muestra el peso en KB o MB', () => {
+    expect(kb(48 * 1024)).toBe('48 KB');
+    expect(kb(3.2 * 1024 * 1024)).toBe('3.2 MB');
+  });
+  it('el menú del admin de TransAndino incluye Fotos de destinos', () => {
+    const menu = armarMenu({ roles: { transandino: 'administrador', aeropuerto: 'cliente' } });
+    expect(menu.find((g) => g.modulo === 'transandino').opciones.map(([r]) => r)).toContain('/app/transandino/destinos');
+    expect(armarMenu({ roles: { transandino: 'empleado' } })[0].opciones.map(([r]) => r)).not.toContain('/app/transandino/destinos');
+  });
+});

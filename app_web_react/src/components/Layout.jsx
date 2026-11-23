@@ -1,5 +1,6 @@
 // src/components/Layout.jsx
 // Barra superior + menú lateral según los roles + contenido de la página
+import { Avatar } from './Avatar.jsx';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -34,17 +35,24 @@ export function Layout() {
         </div>
         <div className="barra-der">
           <span className={`en-vivo ${enVivo ? 'activo' : ''}`} title={enVivo ? t('enVivoSi') : t('enVivoNo')}><span className="punto-vivo" aria-hidden="true" />{enVivo ? t('enVivo') : t('sinConexion')}</span>
-          <SelectorIdioma />
+          <span className="solo-escritorio"><SelectorIdioma /></span>
           <BusquedaGlobal />
           <Notificaciones />
           <BotonTema />
-          <span className="usuario-chip" title={usuario.correo}>{usuario.nombre}</span>
-          <button type="button" className="btn btn-claro" onClick={() => { salir(); navegar('/'); }}>{t('cerrarSesion')}</button>
+          <Link to="/app/perfil" className="usuario-chip" title={`${usuario.correo} · Mi perfil`}>
+            <Avatar id={usuario.id} nombre={usuario.nombre} version={usuario.foto_v} tamano={28} />
+            <span>{usuario.nombre}</span>
+          </Link>
+          <button type="button" className="btn btn-claro solo-escritorio" onClick={() => { salir(); navegar('/'); }}>{t('cerrarSesion')}</button>
         </div>
       </header>
       <div className="cuerpo">
         <nav id="menu-roles" className={`menu ${abierto ? 'abierto' : ''}`} aria-label="Menú según tus roles" onClick={() => setAbierto(false)}>
           <NavLink to="/app" end className="menu-opcion">{t('inicio')}</NavLink>
+          <NavLink to="/app/perfil" end className="menu-opcion">{t('Mi perfil')}</NavLink>
+          {/* En celular, idioma y cerrar sesión pasan al menú para que la barra no se salga de la pantalla */}
+          <div className="solo-movil menu-extra" onClick={(e) => e.stopPropagation()}><SelectorIdioma /></div>
+          <button type="button" className="menu-opcion solo-movil boton-salir" onClick={() => { salir(); navegar('/'); }}>{t('cerrarSesion')}</button>
           {grupos.map((g) => (
             <div key={g.modulo} className={`menu-grupo grupo-${MODULOS[g.modulo]?.color ?? g.modulo}`}>
               <p className="menu-titulo">{g.titulo ? t(g.titulo) : MODULOS[g.modulo].nombre}{g.rol && <span> · {t(`rol.${g.rol}`)}</span>}</p>

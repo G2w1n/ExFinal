@@ -1,5 +1,6 @@
 // src/repositories/crm.repository.js
 // El CRM ve al cliente completo: pasajes (TransAndino) + reservas (Aeropuerto) + pagos + notas
+import { VERSION } from './imagenes.repository.js';
 import { pool } from '../config/db.js';
 
 // Resumen por cliente y su tipo: inactivo (sin compras en 90 días), frecuente (3+ viajes pagados),
@@ -9,7 +10,7 @@ const RESUMEN = `
     SELECT id_usuario, estado, creado FROM compras_pasajes
     UNION ALL SELECT id_usuario, estado, creado FROM reservas_estacionamiento
   ), stats AS (
-    SELECT u.id, u.nombre, u.correo, u.celular, u.creado,
+    SELECT u.id, u.nombre, u.correo, u.celular, u.creado, ${VERSION('perfil', 'u.id')} AS foto_v,
            (SELECT COUNT(*)::int FROM compras_pasajes p WHERE p.id_usuario = u.id) AS pasajes,
            (SELECT COUNT(*)::int FROM reservas_estacionamiento e WHERE e.id_usuario = u.id) AS reservas,
            (SELECT COUNT(*)::int FROM compras_pasajes p WHERE p.id_usuario = u.id AND p.estado IN ('pagado', 'abordado')) AS viajes,

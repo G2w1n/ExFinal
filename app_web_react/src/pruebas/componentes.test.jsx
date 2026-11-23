@@ -83,3 +83,13 @@ describe('Ruta protegida', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('No tienes acceso');
   });
 });
+
+describe('Avatar sin foto', () => {
+  it('muestra las iniciales del nombre', async () => {
+    const { Avatar, iniciales } = await import('../components/Avatar.jsx');
+    const { QueryClient, QueryClientProvider } = await import('@tanstack/react-query');
+    expect(iniciales('Lucía Quispe Mamani')).toBe('LQ');
+    const { container } = render(<QueryClientProvider client={new QueryClient()}><Avatar id={3} nombre="ana torres" /></QueryClientProvider>);
+    expect(container.textContent).toBe('AT');
+  });
+});

@@ -1,4 +1,5 @@
 // src/repositories/pasajes.repository.js
+import { VERSION } from './imagenes.repository.js';
 import { pool } from '../config/db.js';
 import { codigoDe } from '../utils/codigos.js';
 
@@ -11,7 +12,8 @@ const SELECT_PASAJE = `
     LEFT JOIN reservas_estacionamiento e ON e.id_pasaje = p.id AND e.estado <> 'cancelado'`;
 
 export async function rutas() {
-  const { rows } = await pool.query(`SELECT id, origen, destino, duracion_horas, to_char(hora_salida, 'HH24:MI') AS hora_salida
+  const { rows } = await pool.query(`SELECT id, origen, destino, duracion_horas, to_char(hora_salida, 'HH24:MI') AS hora_salida,
+                                            ${VERSION('destino', 'rutas.id')} AS imagen_v
                                        FROM rutas WHERE activo ORDER BY destino = 'Cusco' DESC, origen, destino`);
   return rows;
 }

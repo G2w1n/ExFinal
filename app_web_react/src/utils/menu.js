@@ -13,6 +13,7 @@ export function armarMenu(usuario) {
     const opciones = ta === 'cliente'
       ? [['/app/transandino/comprar', 'Comprar pasaje'], ['/app/transandino/mis-pasajes', 'Mis pasajes']]
       : [['/app/transandino/panel', 'Panel de pasajes'], ['/app/transandino/comprar', 'Venta presencial']];
+    if (ta === 'administrador') opciones.push(['/app/transandino/destinos', 'Fotos de destinos']);
     grupos.push({ modulo: 'transandino', rol: ta, opciones });
   }
   const aero = roles.aeropuerto;

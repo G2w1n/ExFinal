@@ -6,7 +6,7 @@ import * as usuarios from '../repositories/usuarios.repository.js';
 import { AppError } from '../utils/AppError.js';
 import { CORREO, texto } from '../utils/validaciones.js';
 
-const publico = (u) => ({ id: u.id, nombre: u.nombre, correo: u.correo, roles: u.roles });
+const publico = (u) => ({ id: u.id, nombre: u.nombre, correo: u.correo, roles: u.roles, foto_v: u.foto_v ?? null });
 
 function firmar(u) {
   // El token lleva el id y los roles: el menú de React y la API los leen de aquí

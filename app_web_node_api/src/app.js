@@ -8,6 +8,7 @@ import reservasRoutes from './routes/reservas.routes.js';
 import integracionesRoutes from './routes/integraciones.routes.js';
 import crmRoutes, { notificacionesRoutes } from './routes/crm.routes.js';
 import cajaRoutes from './routes/caja.routes.js';
+import imagenesRoutes from './routes/imagenes.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { pool } from './config/db.js';
 import swaggerUi from 'swagger-ui-express';
@@ -41,6 +42,7 @@ app.use('/api/integraciones', integracionesRoutes);
 app.use('/api/notificaciones', notificacionesRoutes);
 app.use('/api/crm', crmRoutes);
 app.use('/api/caja', cajaRoutes);
+app.use('/api/imagenes', imagenesRoutes);
 
 app.use('/api', (_req, res) => res.status(404).json({ mensaje: 'Ruta no encontrada.' }));
 app.use(errorHandler);

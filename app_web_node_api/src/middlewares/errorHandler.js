@@ -5,6 +5,7 @@ import { AppError } from '../utils/AppError.js';
 export function errorHandler(err, _req, res, _next) {
   if (err instanceof AppError) return res.status(err.estado).json({ mensaje: err.message });
   if (err.type === 'entity.parse.failed') return res.status(400).json({ mensaje: 'El cuerpo de la petición no es JSON válido.' });
+  if (err.type === 'entity.too.large') return res.status(413).json({ mensaje: 'El archivo es demasiado grande (máximo 300 KB).' });
   // Restricciones de la base de datos
   if (err.code === '23505') return res.status(409).json({ mensaje: 'Ese registro ya existe (por ejemplo, el asiento ya está vendido).' });
   if (err.code === '23514' || err.code === '22P02' || err.code === '22007' || err.code === '22008') {

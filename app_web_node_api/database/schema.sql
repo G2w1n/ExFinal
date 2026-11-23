@@ -6,7 +6,7 @@
 -- las tablas, y luego carga los datos de prueba. Úsalo en la base del grupo.
 -- =====================================================================
 
-DROP TABLE IF EXISTS cajas, notas_cliente, estados_historial, pagos, reservas_estacionamiento,
+DROP TABLE IF EXISTS imagenes, cajas, notas_cliente, estados_historial, pagos, reservas_estacionamiento,
   compras_pasajes, rutas, usuario_rol, usuarios CASCADE;
 
 -- ---------- Común: un usuario, varios roles ----------
@@ -129,4 +129,16 @@ CREATE TABLE notas_cliente (
   id_autor    INTEGER NOT NULL REFERENCES usuarios (id),
   texto       TEXT NOT NULL CHECK (char_length(texto) BETWEEN 2 AND 500),
   fecha       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ---------- Imágenes (fase 11): se guardan dentro de la base, ya achicadas en el navegador ----------
+-- tipo 'perfil' -> id_entidad = usuarios.id · tipo 'destino' -> id_entidad = rutas.id
+CREATE TABLE imagenes (
+  tipo         TEXT NOT NULL CHECK (tipo IN ('perfil', 'destino')),
+  id_entidad   INTEGER NOT NULL,
+  mime         TEXT NOT NULL CHECK (mime IN ('image/webp', 'image/jpeg', 'image/png')),
+  datos        BYTEA NOT NULL CHECK (octet_length(datos) <= 307200),
+  id_autor     INTEGER REFERENCES usuarios (id) ON DELETE SET NULL,
+  actualizado  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (tipo, id_entidad)
 );

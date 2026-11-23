@@ -1,5 +1,6 @@
 // src/crm/Clientes.jsx
 // CRM: lista de clientes de las dos apps con su tipo (frecuente, nuevo, regular, inactivo)
+import { Avatar } from '../components/Avatar.jsx';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { crmApi } from '../api/servicios.api.js';
@@ -32,7 +33,7 @@ export function Clientes() {
             <tbody>
               {datos?.map((c) => (
                 <tr key={c.id}>
-                  <td><strong>{c.nombre}</strong><small>{c.correo}</small></td>
+                  <td><span className="cliente-celda"><Avatar id={c.id} nombre={c.nombre} version={c.foto_v} tamano={36} /><span><strong>{c.nombre}</strong><small>{c.correo}</small></span></span></td>
                   <td><Estado valor={c.segmento} /></td>
                   <td>{c.pasajes}</td><td>{c.reservas}</td><td>{c.pendientes}</td>
                   <td>{soles(c.gastado)}</td><td>{momento(c.ultima_actividad)}</td>

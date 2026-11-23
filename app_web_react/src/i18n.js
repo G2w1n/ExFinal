@@ -34,6 +34,8 @@ const FRASES = {
   'Espacio para buses': T('Espacio para buses', 'Bus parking', 'Buskunapaq sayana'),
   'Mi viaje': T('Mi viaje', 'My trip', 'Puriyniy'),
   'Mis viajes': T('Mis viajes', 'My trips', 'Puriyniykuna'),
+  'Mi perfil': T('Mi perfil', 'My profile', 'Ñuqap perfilniy'),
+  'Fotos de destinos': T('Fotos de destinos', 'Destination photos', "Chayana llaqtakunap siq'inkuna"),
   Ventanilla: T('Ventanilla', 'Counter', 'Ventanilla'),
   Caja: T('Caja', 'Cashier', 'Qullqi wasi'),
   'Garita de salida': T('Garita de salida', 'Exit gate', 'Lluqsina punku'),

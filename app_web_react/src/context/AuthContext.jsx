@@ -36,15 +36,25 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('sesion-vencida', salir);
   }, [salir]);
 
+  // Cambios del propio usuario (por ejemplo la versión de su foto) sin volver a iniciar sesión
+  const actualizar = useCallback((cambios) => {
+    setUsuario((u) => {
+      const nuevo = { ...u, ...cambios };
+      localStorage.setItem(CLAVE_USUARIO, JSON.stringify(nuevo));
+      return nuevo;
+    });
+  }, []);
+
   const valor = useMemo(() => ({
     usuario,
+    actualizar,
     login: async (correo, password) => guardar(await authApi.login(correo, password)),
     registro: async (cuenta) => guardar(await authApi.registro(cuenta)),
     salir,
     // rol('aeropuerto') -> 'cliente' | 'administrador' | 'empleado' | undefined
     rol: (modulo) => usuario?.roles?.[modulo],
     tiene: (modulo, ...roles) => roles.includes(usuario?.roles?.[modulo]),
-  }), [usuario, guardar, salir]);
+  }), [usuario, guardar, salir, actualizar]);
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }

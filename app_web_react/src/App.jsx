@@ -29,6 +29,8 @@ const FichaCliente = perezoso(() => import('./crm/FichaCliente.jsx'), 'FichaClie
 const Caja = perezoso(() => import('./ventanilla/Caja.jsx'), 'Caja');
 const Vuelos = perezoso(() => import('./pages/Vuelos.jsx'), 'Vuelos');
 const Estacionamiento = perezoso(() => import('./pages/Estacionamiento.jsx'), 'Estacionamiento');
+const MiPerfil = perezoso(() => import('./pages/MiPerfil.jsx'), 'MiPerfil');
+const FotosDestinos = perezoso(() => import('./modulos/transandino/FotosDestinos.jsx'), 'FotosDestinos');
 const Login = perezoso(() => import('./pages/Login.jsx'), 'Login');
 const Registro = perezoso(() => import('./pages/Registro.jsx'), 'Registro');
 // También el lector QR (garita), los gráficos y el generador de QR (comprobante)
@@ -64,6 +66,8 @@ export default function App() {
         <Route path="aeropuerto/panel" element={ruta('aeropuerto', PERSONAL, <PanelReservas />)} />
         <Route path="aeropuerto/tablero" element={ruta('aeropuerto', PERSONAL, <TableroReservas />)} />
         <Route path="aeropuerto/llegadas" element={ruta('aeropuerto', PERSONAL, <LlegadasEsperadas />)} />
+        <Route path="perfil" element={<MiPerfil />} />
+        <Route path="transandino/destinos" element={ruta('transandino', ['administrador'], <FotosDestinos />)} />
         <Route path="aeropuerto/espacio-bus" element={ruta('transandino', ['administrador'], <EspacioBuses />)} />
         <Route path="mis-viajes" element={<MisViajes />} />
         <Route path="comprobante/:tipo/:id" element={<Comprobante />} />

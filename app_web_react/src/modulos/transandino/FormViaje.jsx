@@ -6,6 +6,7 @@ import { Desglose } from '../../components/Desglose.jsx';
 import { hoyEnLima } from '../../utils/formato.js';
 import { MapaAsientos } from './MapaAsientos.jsx';
 import { Calendario } from './Calendario.jsx';
+import { FotoDestino } from '../../components/FotoDestino.jsx';
 
 export function FormViaje({ viaje, setViaje, propio = null }) {
   const [rutas, setRutas] = useState([]);
@@ -48,6 +49,7 @@ export function FormViaje({ viaje, setViaje, propio = null }) {
           <small>20 kg incluidos; S/ 4 por kg extra.</small>
         </label>
       </div>
+      {ruta && <FotoDestino ruta={ruta} />}
       {viaje.id_ruta && <Calendario idRuta={viaje.id_ruta} valor={viaje.fecha} onCambiar={(fecha) => setViaje({ ...viaje, fecha, asiento: null })} />}
       {ruta && <p className="dato-ruta">Sale a las <strong>{ruta.hora_salida}</strong> · viaje de <strong>{ruta.duracion_horas} h</strong></p>}
       {viaje.id_ruta && viaje.fecha && <MapaAsientos ocupados={ocupados} elegido={viaje.asiento} onElegir={(n) => setViaje({ ...viaje, asiento: n })} />}

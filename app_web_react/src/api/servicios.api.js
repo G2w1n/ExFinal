@@ -68,3 +68,12 @@ export const cajaApi = {
   cobrar: (d) => datos(api.post('/caja/cobrar', d)),
   cerrar: (contado, nota) => datos(api.post('/caja/cerrar', { contado, nota })),
 };
+
+// Imágenes guardadas en Neon (BYTEA): perfil (privada) y destino (pública)
+export const imagenesApi = {
+  url: (tipo, id, version) => `${api.defaults.baseURL}/imagenes/${tipo}/${id}${version ? `?v=${version}` : ''}`,
+  // Las de perfil piden sesión: se descargan con el token y se muestran como blob
+  blob: (tipo, id, version) => datos(api.get(`/imagenes/${tipo}/${id}`, { params: { v: version }, responseType: 'blob' })),
+  subir: (tipo, id, blob) => datos(api.put(`/imagenes/${tipo}/${id}`, blob, { headers: { 'Content-Type': blob.type } })),
+  borrar: (tipo, id) => api.delete(`/imagenes/${tipo}/${id}`),
+};

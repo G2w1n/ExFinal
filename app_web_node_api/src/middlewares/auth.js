@@ -13,3 +13,9 @@ export function auth(req, _res, next) {
     next(new AppError(401, 'Tu sesión venció. Inicia sesión de nuevo.'));
   }
 }
+
+// Igual que auth, pero sin token deja pasar (req.usuario queda vacío): para recursos públicos con extras
+export function authOpcional(req, res, next) {
+  if (!req.headers.authorization) return next();
+  return auth(req, res, next);
+}

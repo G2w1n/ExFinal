@@ -2,7 +2,7 @@
 // Portada pública común: TransAndino + Aeropuerto en un solo sitio
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { pasajesApi } from '../api/servicios.api.js';
+import { imagenesApi, pasajesApi } from '../api/servicios.api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { hoyEnLima, soles } from '../utils/formato.js';
 import { CabeceraPublica, PiePublico } from '../components/Publico.jsx';
@@ -113,7 +113,7 @@ export function Inicio() {
               <thead><tr><th>Ruta</th><th>Sale</th><th>Duración</th><th>Desde</th></tr></thead>
               <tbody>
                 {rutas.map((r) => (
-                  <tr key={r.id}><td>{r.origen} → {r.destino}</td><td>{r.hora_salida}</td><td>{r.duracion_horas} h</td><td>{soles(60)}</td></tr>
+                  <tr key={r.id}><td><span className="ruta-celda">{r.imagen_v && <img className="ruta-mini" src={imagenesApi.url('destino', r.id, r.imagen_v)} alt="" width="64" height="36" loading="lazy" />}{r.origen} → {r.destino}</span></td><td>{r.hora_salida}</td><td>{r.duracion_horas} h</td><td>{soles(60)}</td></tr>
                 ))}
               </tbody>
             </table>

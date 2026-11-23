@@ -762,3 +762,59 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
 [data-tema="oscuro"] .esqueleto-mapa { background: linear-gradient(90deg, #1f2c39 25%, #2a3949 50%, #1f2c39 75%); background-size: 200% 100%; }
 [data-tema="oscuro"] .leaflet-tile-pane { filter: brightness(0.75) contrast(1.1) saturate(0.8); }
 [data-tema="oscuro"] .paleta [cmdk-item][data-selected="true"] { background: #172c44; }
+
+/* ===================== Fase 11 · Imágenes en Neon ===================== */
+.avatar { display: inline-grid; place-items: center; flex: none; border-radius: 50%; overflow: hidden; color: #fff; font-weight: 700; line-height: 1; letter-spacing: 0.02em; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85); }
+.avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.usuario-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; color: #fff; text-decoration: none; transition: background 0.15s; }
+.usuario-chip:hover, .usuario-chip:focus-visible { background: rgba(255, 255, 255, 0.22); }
+.usuario-chip > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.cliente-celda { display: flex; align-items: center; gap: 10px; }
+.cliente-celda > span { display: flex; flex-direction: column; }
+.ficha-cab { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.avatar-ficha { box-shadow: 0 0 0 4px var(--superficie, #fff), 0 4px 14px rgba(0, 0, 0, 0.15); }
+.perfil-grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.subir-foto { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.subir-foto .acciones { justify-content: center; }
+.zona-foto { position: relative; display: grid; place-items: center; overflow: hidden; padding: 0; border: 2px dashed #b7c3cd; background: #eef2f5; color: #5a6875; cursor: pointer; transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
+.zona-foto:hover:not(:disabled), .zona-foto:focus-visible { border-color: var(--primario); box-shadow: 0 0 0 4px rgba(22, 58, 92, 0.12); }
+.zona-foto.arrastrando { border-color: var(--acento); transform: scale(1.02); background: #fff4ea; }
+.es-circulo .zona-foto { width: 180px; height: 180px; border-radius: 50%; }
+.es-banner { align-items: stretch; }
+.es-banner .zona-foto { width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; }
+.zona-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.zona-vacia { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 2.6rem; }
+.zona-vacia small { font-size: 0.8rem; font-weight: 600; }
+.zona-estado { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(15, 30, 45, 0.55); color: #fff; font-weight: 700; }
+.rejilla-destinos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.rejilla-destinos > li { margin: 0; }
+.rejilla-destinos h2 { margin: 0; font-size: 1.05rem; }
+.foto-destino { position: relative; margin: 16px 0 14px; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 5; min-height: 120px; background: linear-gradient(120deg, var(--ta, #1f6b45), #2f8f6a 55%, #f39c4a); }
+.foto-destino img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: foto-zoom 12s ease-out both; }
+.foto-destino figcaption { position: absolute; inset: auto 0 0 0; display: flex; flex-direction: column; padding: 28px 18px 14px; color: #fff; background: linear-gradient(transparent, rgba(0, 0, 0, 0.62)); }
+.foto-destino figcaption strong { font: 700 1.3rem var(--fuente-titulo); }
+.foto-destino figcaption span { font-size: 0.88rem; opacity: 0.92; }
+@keyframes foto-zoom { from { transform: scale(1.08); } to { transform: scale(1); } }
+.ruta-celda { display: inline-flex; align-items: center; gap: 10px; }
+.ruta-mini { width: 64px; height: 36px; object-fit: cover; border-radius: 6px; }
+[data-tema="oscuro"] .zona-foto { background: #1c2733; border-color: #3a4a5a; color: #a9b6c2; }
+[data-tema="oscuro"] .zona-foto.arrastrando { background: #2b2418; }
+@media (max-width: 760px) {
+  .perfil-grid { grid-template-columns: 1fr; }
+  .foto-destino { aspect-ratio: 16 / 7; }
+}
+@media (max-width: 760px) {
+  /* En celular la barra solo deja iconos: el perfil está en el menú lateral */
+  .usuario-chip { display: none; }
+  .barra-der { gap: 6px; min-width: 0; }
+  .en-vivo { font-size: 0; gap: 0; padding: 8px; }
+  .marca { font-size: 1rem; white-space: nowrap; }
+}
+.solo-movil { display: none !important; }
+.boton-salir { width: 100%; border: 0; background: transparent; text-align: left; cursor: pointer; font: inherit; font-weight: 600; color: #a1392f; }
+.menu-extra { padding: 6px 12px; }
+.menu-extra .selector-idioma select { background: #fff; color: var(--tinta); border-color: #c4ced6; }
+@media (max-width: 760px) {
+  .solo-movil { display: flex !important; }
+  .solo-escritorio { display: none !important; }
+}

@@ -1,0 +1,1866 @@
+{
+  "info": {
+    "_postman_id": "616f3157-849a-4fa9-a690-89eb8ef60724",
+    "name": "Grupo15_Postman_ViajeACusco_API",
+    "description": "Pruebas de la API del Grupo 15 · Viaje a Cusco (TransAndino + Aeropuerto del Cusco + CRM), publicada en Render.\n\nEjecutar en orden con el Runner: el login guarda los tokens y las peticiones guardan los ids que crean.\nUsar con el environment \"Grupo15 · Render\".",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Login y sesión",
+      "item": [
+        {
+          "name": "GET Estado de la API y de Neon (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/salud",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "salud"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Base conectada\", () => pm.expect(pm.response.json().base).to.eql(\"conectada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Login cliente (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correoCliente}}\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Devuelve token\", () => pm.expect(j).to.have.property(\"token\"));",
+                  "pm.test(\"Rol cliente en transandino\", () => pm.expect(j.usuario.roles.transandino).to.eql(\"cliente\"));",
+                  "pm.environment.set(\"tokenCliente\", j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Login administrador Aeropuerto (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@aeropuerto.pe\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Devuelve token\", () => pm.expect(j).to.have.property(\"token\"));",
+                  "pm.test(\"Rol administrador en aeropuerto\", () => pm.expect(j.usuario.roles.aeropuerto).to.eql(\"administrador\"));",
+                  "pm.environment.set(\"tokenAdminAero\", j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Login administrador TransAndino (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@transandino.pe\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Devuelve token\", () => pm.expect(j).to.have.property(\"token\"));",
+                  "pm.test(\"Rol administrador en transandino\", () => pm.expect(j.usuario.roles.transandino).to.eql(\"administrador\"));",
+                  "pm.environment.set(\"tokenAdminTA\", j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Login empleado Aeropuerto (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"empleado1@aeropuerto.pe\",\n  \"password\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Devuelve token\", () => pm.expect(j).to.have.property(\"token\"));",
+                  "pm.test(\"Rol empleado en aeropuerto\", () => pm.expect(j.usuario.roles.aeropuerto).to.eql(\"empleado\"));",
+                  "pm.environment.set(\"tokenEmpleado\", j.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Login con clave incorrecta (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"{{correoCliente}}\",\n  \"password\": \"clave-mala\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Mi cuenta (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/yo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "yo"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Es el cliente que inició sesión\", () => pm.expect(pm.response.json().correo).to.eql(pm.environment.get(\"correoCliente\")));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. TransAndino · pasajes",
+      "item": [
+        {
+          "name": "GET Rutas y horarios (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/rutas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "rutas"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Fecha, asiento y placa al azar para que la colección se pueda ejecutar varias veces",
+                  "const d = new Date(Date.now() + (30 + Math.floor(Math.random() * 300)) * 86400000);",
+                  "pm.environment.set(\"fechaViaje\", d.toISOString().slice(0, 10));",
+                  "pm.environment.set(\"asiento\", String(1 + Math.floor(Math.random() * 40)));",
+                  "const L = \"ABCDEFGHJKLMNPRSTUVWXYZ\"; const r = () => L[Math.floor(Math.random() * L.length)];",
+                  "pm.environment.set(\"placa\", r() + r() + r() + \"-\" + String(100 + Math.floor(Math.random() * 900)));",
+                  "pm.environment.set(\"placaBus\", \"T\" + r() + r() + \"-\" + String(100 + Math.floor(Math.random() * 900)));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Hay rutas\", () => pm.expect(j.length).to.be.above(0));",
+                  "const lc = j.find(r => r.origen === \"Lima\" && r.destino === \"Cusco\");",
+                  "pm.test(\"Existe Lima → Cusco\", () => pm.expect(lc).to.be.an(\"object\"));",
+                  "pm.environment.set(\"idRuta\", lc.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Cotizar en el servidor (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/cotizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "cotizar"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asiento\": 3,\n  \"equipaje_kg\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Cama + 5 kg extra = S/ 105\", () => pm.expect(pm.response.json().total).to.eql(105));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Comprar pasaje (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_ruta\": {{idRuta}},\n  \"fecha\": \"{{fechaViaje}}\",\n  \"asiento\": {{asiento}},\n  \"equipaje_kg\": 18\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Queda registrado\", () => pm.expect(j.estado).to.eql(\"registrado\"));",
+                  "pm.test(\"Código PAS-\", () => pm.expect(j.codigo).to.match(/^PAS-/));",
+                  "pm.environment.set(\"idPasaje\", j.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Comprar el mismo asiento (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_ruta\": {{idRuta}},\n  \"fecha\": \"{{fechaViaje}}\",\n  \"asiento\": {{asiento}},\n  \"equipaje_kg\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Mis pasajes (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "mios"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Incluye el pasaje recién comprado\", () => pm.expect(pm.response.json().map(p => p.id)).to.include(pm.environment.get(\"idPasaje\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Pagar pasaje (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/{{idPasaje}}/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "{{idPasaje}}",
+                "pagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"tarjeta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Queda pagado\", () => pm.expect(pm.response.json().pasaje.estado).to.eql(\"pagado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Pagar dos veces (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/{{idPasaje}}/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "{{idPasaje}}",
+                "pagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"tarjeta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Historial del pasaje (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/{{idPasaje}}/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "{{idPasaje}}",
+                "historial"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Registrado y pagado\", () => pm.expect(pm.response.json().map(h => h.estado)).to.include.members([\"registrado\", \"pagado\"]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Integraciones F1 · F2 · F3",
+      "item": [
+        {
+          "name": "GET F1 · Datos precargados desde el pasaje (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/prellenado/{{idPasaje}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "prellenado",
+                "{{idPasaje}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Trae la hora de entrada\", () => pm.expect(j.fecha_hora_entrada).to.be.a(\"string\"));",
+                  "pm.environment.set(\"entrada\", j.fecha_hora_entrada);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST F1 · Reservar enlazado al pasaje (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"{{placa}}\",\n  \"fecha_hora_entrada\": \"{{entrada}}\",\n  \"horas\": 8,\n  \"zona_vip\": false,\n  \"id_pasaje\": {{idPasaje}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Enlazada al pasaje\", () => pm.expect(j.id_pasaje).to.eql(pm.environment.get(\"idPasaje\")));",
+                  "pm.environment.set(\"idReserva\", j.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH Saltarse un estado: registrado → preparado (409)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/{{idReserva}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                "{{idReserva}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"preparado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Pagar reserva (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/{{idReserva}}/pagar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                "{{idReserva}}",
+                "pagar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"billetera\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Queda pagada\", () => pm.expect(pm.response.json().reserva.estado).to.eql(\"pagado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH Personal: espacio preparado (200)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas/{{idReserva}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas",
+                "{{idReserva}}",
+                "estado"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEmpleado}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"preparado\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Queda preparado\", () => pm.expect(pm.response.json().estado).to.eql(\"preparado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET F1 · Mis viajes: pasaje + estacionamiento (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/mis-viajes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "mis-viajes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const v = pm.response.json().pasajes.find(p => p.id === pm.environment.get(\"idPasaje\"));",
+                  "pm.test(\"El viaje trae su reserva\", () => pm.expect(v.reserva_id).to.eql(pm.environment.get(\"idReserva\")));",
+                  "pm.test(\"Reserva preparada\", () => pm.expect(v.reserva_estado).to.eql(\"preparado\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST F2 · Espacio para bus (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/espacio-bus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "espacio-bus"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminTA}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"{{placaBus}}\",\n  \"fecha_hora_entrada\": \"{{fechaViaje}}T06:00\",\n  \"horas\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Es tipo bus\", () => pm.expect(pm.response.json().tipo).to.eql(\"bus\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET F2 · Mis buses (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/mis-buses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "mis-buses"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminTA}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Tiene al menos 3 buses\", () => pm.expect(pm.response.json().length).to.be.at.least(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET F3 · Llegadas esperadas del día (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/llegadas?fecha={{fechaLlegada}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "llegadas"
+              ],
+              "query": [
+                {
+                  "key": "fecha",
+                  "value": "{{fechaLlegada}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// La llegada es el día siguiente a la salida (Lima → Cusco: 19 h)",
+                  "pm.environment.set(\"fechaLlegada\", pm.environment.get(\"entrada\").slice(0, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Aparece la reserva del cliente\", () => pm.expect(pm.response.json().map(l => l.id)).to.include(pm.environment.get(\"idReserva\")));",
+                  "pm.test(\"Ordenadas por hora de llegada\", () => { const h = pm.response.json().map(l => l.hora_llegada); pm.expect(h).to.eql([...h].sort()); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Caja y CRM",
+      "item": [
+        {
+          "name": "POST Cliente reserva sin pagar (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"{{placa}}\",\n  \"fecha_hora_entrada\": \"{{fechaViaje}}T09:00\",\n  \"horas\": 3,\n  \"zona_vip\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.environment.set(\"idReservaCaja\", pm.response.json().id);",
+                  "pm.environment.set(\"montoCaja\", pm.response.json().monto);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Abrir caja con fondo inicial (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caja/abrir",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "abrir"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto_inicial\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Si quedó una caja abierta de otra ejecución, se cierra antes de abrir la nueva",
+                  "pm.sendRequest({ url: pm.environment.get(\"baseUrl\") + \"/caja\", header: { Authorization: \"Bearer \" + pm.environment.get(\"tokenAdminAero\") } }, (e, r) => {",
+                  "  if (r && r.json().caja) pm.sendRequest({ url: pm.environment.get(\"baseUrl\") + \"/caja/cerrar\", method: \"POST\",",
+                  "    header: { Authorization: \"Bearer \" + pm.environment.get(\"tokenAdminAero\"), \"Content-Type\": \"application/json\" },",
+                  "    body: { mode: \"raw\", raw: JSON.stringify({ contado: r.json().esperado, nota: \"Cierre automático (Postman)\" }) } });",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Caja abierta\", () => pm.expect(pm.response.json().caja.estado).to.eql(\"abierta\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Cobrar en efectivo con vuelto (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caja/cobrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "cobrar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entidad\": \"reserva\",\n  \"id\": {{idReservaCaja}},\n  \"metodo\": \"efectivo\",\n  \"monto_recibido\": 200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test(\"Vuelto correcto\", () => pm.expect(j.vuelto).to.eql(Math.round((200 - pm.environment.get(\"montoCaja\")) * 100) / 100));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Cobrar otra vez lo mismo (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caja/cobrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "cobrar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entidad\": \"reserva\",\n  \"id\": {{idReservaCaja}},\n  \"metodo\": \"efectivo\",\n  \"monto_recibido\": 200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Estado de la caja (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/caja",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Esperado = fondo + efectivo\", () => pm.expect(pm.response.json().esperado).to.eql(Math.round((100 + pm.environment.get(\"montoCaja\")) * 100) / 100));",
+                  "pm.environment.set(\"esperado\", pm.response.json().esperado);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Cerrar caja con arqueo (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/caja/cerrar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "caja",
+                "cerrar"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contado\": {{esperado}},\n  \"nota\": \"Cierre de prueba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Caja cerrada\", () => pm.expect(pm.response.json().estado).to.eql(\"cerrada\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET CRM · Clientes (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crm",
+                "clientes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminAero}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Al menos 10 clientes\", () => pm.expect(pm.response.json().length).to.be.at.least(10));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET CRM · Indicadores (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/indicadores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crm",
+                "indicadores"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdminTA}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Trae ingresos y la serie de 14 días\", () => { const j = pm.response.json(); pm.expect(j).to.have.property(\"serie\"); pm.expect(j.serie.length).to.eql(14); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Seguridad y errores",
+      "item": [
+        {
+          "name": "GET Sin token (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "mios"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Token falso (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/pasajes/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pasajes",
+                "mios"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFalso}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Cliente entra al CRM (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/crm/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "crm",
+                "clientes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Cliente entra al panel de reservas (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Cliente reserva espacio para bus (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/integraciones/espacio-bus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "integraciones",
+                "espacio-bus"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"BUS-111\",\n  \"fecha_hora_entrada\": \"{{fechaViaje}}T06:00\",\n  \"horas\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Placa con formato inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reservas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reservas"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenCliente}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"123\",\n  \"fecha_hora_entrada\": \"{{fechaViaje}}T09:00\",\n  \"horas\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Ruta que no existe (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/no-existe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "no-existe"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Trae un mensaje claro\", () => pm.expect(pm.response.json()).to.have.property(\"mensaje\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

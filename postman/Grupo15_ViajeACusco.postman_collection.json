@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "616f3157-849a-4fa9-a690-89eb8ef60724",
+    "_postman_id": "653dd52e-11e7-4406-9517-7a9148c39511",
     "name": "Grupo15_Postman_ViajeACusco_API",
     "description": "Pruebas de la API del Grupo 15 · Viaje a Cusco (TransAndino + Aeropuerto del Cusco + CRM), publicada en Render.\n\nEjecutar en orden con el Runner: el login guarda los tokens y las peticiones guardan los ids que crean.\nUsar con el environment \"Grupo15 · Render\".",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -563,7 +563,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Incluye el pasaje recién comprado\", () => pm.expect(pm.response.json().map(p => p.id)).to.include(pm.environment.get(\"idPasaje\")));"
+                  "pm.test(\"Incluye el pasaje recién comprado\", () => pm.expect(pm.response.json().map(p => p.id)).to.include(Number(pm.environment.get(\"idPasaje\"))));"
                 ]
               }
             }
@@ -811,7 +811,7 @@
                 "exec": [
                   "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
-                  "pm.test(\"Enlazada al pasaje\", () => pm.expect(j.id_pasaje).to.eql(pm.environment.get(\"idPasaje\")));",
+                  "pm.test(\"Enlazada al pasaje\", () => pm.expect(j.id_pasaje).to.eql(Number(pm.environment.get(\"idPasaje\"))));",
                   "pm.environment.set(\"idReserva\", j.id);"
                 ]
               }
@@ -1013,8 +1013,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "const v = pm.response.json().pasajes.find(p => p.id === pm.environment.get(\"idPasaje\"));",
-                  "pm.test(\"El viaje trae su reserva\", () => pm.expect(v.reserva_id).to.eql(pm.environment.get(\"idReserva\")));",
+                  "const v = pm.response.json().pasajes.find(p => p.id === Number(pm.environment.get(\"idPasaje\")));",
+                  "pm.test(\"El viaje trae su reserva\", () => pm.expect(v.reserva_id).to.eql(Number(pm.environment.get(\"idReserva\"))));",
                   "pm.test(\"Reserva preparada\", () => pm.expect(v.reserva_estado).to.eql(\"preparado\"));"
                 ]
               }
@@ -1162,7 +1162,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Aparece la reserva del cliente\", () => pm.expect(pm.response.json().map(l => l.id)).to.include(pm.environment.get(\"idReserva\")));",
+                  "pm.test(\"Aparece la reserva del cliente\", () => pm.expect(pm.response.json().map(l => l.id)).to.include(Number(pm.environment.get(\"idReserva\"))));",
                   "pm.test(\"Ordenadas por hora de llegada\", () => { const h = pm.response.json().map(l => l.hora_llegada); pm.expect(h).to.eql([...h].sort()); });"
                 ]
               }
@@ -1342,7 +1342,7 @@
                 "exec": [
                   "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
                   "const j = pm.response.json();",
-                  "pm.test(\"Vuelto correcto\", () => pm.expect(j.vuelto).to.eql(Math.round((200 - pm.environment.get(\"montoCaja\")) * 100) / 100));"
+                  "pm.test(\"Vuelto correcto\", () => pm.expect(j.vuelto).to.eql(Math.round((200 - Number(pm.environment.get(\"montoCaja\"))) * 100) / 100));"
                 ]
               }
             }
@@ -1433,7 +1433,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Esperado = fondo + efectivo\", () => pm.expect(pm.response.json().esperado).to.eql(Math.round((100 + pm.environment.get(\"montoCaja\")) * 100) / 100));",
+                  "pm.test(\"Esperado = fondo + efectivo\", () => pm.expect(pm.response.json().esperado).to.eql(Math.round((100 + Number(pm.environment.get(\"montoCaja\"))) * 100) / 100));",
                   "pm.environment.set(\"esperado\", pm.response.json().esperado);"
                 ]
               }
